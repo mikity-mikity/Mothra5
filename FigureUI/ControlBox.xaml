@@ -1,0 +1,57 @@
+﻿<Window x:Class="Mothra.UI.ControlBox"
+        xmlns:mm="clr-namespace:Mothra.UI"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="FigureUI" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:my="clr-namespace:Mothra.UI" ResizeMode="NoResize" Left="720" Top="50" d:DesignHeight="211" d:DesignWidth="700" SizeToContent="WidthAndHeight" Closing="Window_Closing" Topmost="True">
+    <Window.Resources>
+        <ResourceDictionary Source="/presentationframework.Aero;component/themes/aero.normalcolor.xaml" />
+    </Window.Resources>
+    <DockPanel Height="Auto" HorizontalAlignment="Stretch" Margin="12" Name="dockPanel1" VerticalAlignment="Stretch" Width="Auto">
+        <StackPanel DockPanel.Dock="Top">
+            <WrapPanel Height="Auto" Name="wrapPanel1" Width="Auto" >
+                <mm:newButton x:Name="Compute" Text="Compute Airy stress function"></mm:newButton>
+                <mm:newButton x:Name="Compute2" Text="Compute an equlibriated shape"></mm:newButton>
+            </WrapPanel>
+            <WrapPanel>
+                <Label>allowable torelance</Label>
+                <RadioButton x:Name="Radio0a" Checked="Radio0a_Checked" GroupName="allow">25</RadioButton>
+                <RadioButton x:Name="Radio1a" Checked="Radio1a_Checked" GroupName="allow">50</RadioButton>
+                <RadioButton x:Name="Radio2a" Checked="Radio2a_Checked" GroupName="allow">100</RadioButton>
+                <RadioButton x:Name="Radio3a" Checked="Radio3a_Checked" GroupName="allow">200</RadioButton>
+                <RadioButton x:Name="Radio4a" Checked="Radio4a_Checked" IsChecked="True" GroupName="allow">400</RadioButton>
+                <RadioButton x:Name="Radio5a" Checked="Radio5a_Checked"  GroupName="allow">800</RadioButton>
+                <RadioButton x:Name="Radio6a" Checked="Radio6a_Checked" GroupName="allow">1600</RadioButton>
+                <RadioButton x:Name="Radio7a" Checked="Radio7a_Checked" GroupName="allow">3200</RadioButton>
+            </WrapPanel>
+            <WrapPanel Height="Auto" Name="wrapPanel" Width="Auto">
+                <Button x:Name="Reflect" Click="Reflect_Click" >Reflect</Button>
+                <Label>scaling factor of Airy stress function</Label>
+                <TextBox x:Name="_zScale">1.0</TextBox>
+                <Label>　　　　</Label>
+                <Label>scaling factor of stress field</Label>
+                <TextBox x:Name="_sScale">1.0</TextBox>
+            </WrapPanel>
+            <WrapPanel>
+                <RadioButton x:Name="Radio1d" Checked="Radio1d_Checked" GroupName="coeff">1</RadioButton>
+                <RadioButton x:Name="Radio2d" Checked="Radio2d_Checked" GroupName="coeff">gamma</RadioButton>
+                <RadioButton x:Name="Radio3d" Checked="Radio3d_Checked" IsChecked="True" GroupName="coeff">1/gamma</RadioButton>
+                <RadioButton x:Name="Radio4d" Checked="Radio4d_Checked" GroupName="coeff">sqrt(gamma)</RadioButton>
+                <RadioButton x:Name="Radio5d" Checked="Radio5d_Checked" GroupName="coeff">sqrt(1/gamma)</RadioButton>
+            </WrapPanel>
+            <WrapPanel>
+                <RadioButton x:Name="Radio0e" Checked="Radio0e_Checked" GroupName="force">0</RadioButton>
+                <RadioButton x:Name="Radio1e" Checked="Radio1e_Checked" GroupName="force">0.005</RadioButton>
+                <RadioButton x:Name="Radio2e" Checked="Radio2e_Checked" GroupName="force">0.01</RadioButton>
+                <RadioButton x:Name="Radio3e" Checked="Radio3e_Checked" IsChecked="True" GroupName="force">0.02</RadioButton>
+                <RadioButton x:Name="Radio4e" Checked="Radio4e_Checked" GroupName="force">0.05</RadioButton>
+                <RadioButton x:Name="Radio5e" Checked="Radio5e_Checked" GroupName="force">0.1</RadioButton>
+            </WrapPanel>
+            <CheckBox x:Name="obj">objective function?</CheckBox>
+            <StackPanel Height="Auto" Name="stackPanel1" Width="400" HorizontalAlignment="Stretch">
+            </StackPanel>
+            <StackPanel Height="Auto" Name="stackPanel2" Width="400" HorizontalAlignment="Stretch">
+            </StackPanel>
+        </StackPanel>
+
+    </DockPanel>
+</Window>

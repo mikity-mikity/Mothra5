@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C9F7B38B-FB80-4BE9-89FA-4296B339FAB6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>mikity.ghComponents</RootNamespace>
+    <AssemblyName>Mothra4</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="GH_IO">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Rhinoceros 4.0\Plug-ins\Grasshopper\GH_IO.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Grasshopper">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Rhinoceros 4.0\Plug-ins\Grasshopper\Grasshopper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MatrixInterf, Version=2.0.5.0, Culture=neutral, PublicKeyToken=1fa71b5ffec10e32, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualC.STLCLR" />
+    <Reference Include="mosekdotnet">
+      <HintPath>DLL\mosekdotnet.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="PresentationFramework.Aero">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RhinoCommon, Version=5.1.30000.4, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\RhinoCommon.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ShoArray, Version=2.0.5.0, Culture=neutral, PublicKeyToken=1635376d5e62ab5f, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Numerics.cs" />
+    <Compile Include="nurbsInterface.cs" />
+    <Compile Include="nurbsMasonry.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Preview.cs" />
+    <Compile Include="Bake.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FigureUI\FigureUI.csproj">
+      <Project>{22d8c56b-1e72-4413-ac41-c131d40f4fad}</Project>
+      <Name>FigureUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kapybara3D\Minilla3D.csproj">
+      <Project>{9e51a541-9813-42a6-bec3-ae7cf3e85b8a}</Project>
+      <Name>Minilla3D</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\icon29.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\icon46.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\two-nodes-bar.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\fF.bmp" />
+    <EmbeddedResource Include="icons\neoH.bmp" />
+    <EmbeddedResource Include="icons\stV.bmp" />
+    <EmbeddedResource Include="icons\mR.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\two-nodes-each_length.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\two-nodes-total_length.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\node-pairs-rigid-bars.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\curve-total_length.bmp" />
+    <EmbeddedResource Include="icons\polyline-total_length.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\curve-each_length.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\polyline-each_length.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\two-nodes-fixed_nodes.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\four-nodes-fixed_nodes.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\many-nodes-fixed_nodes.bmp" />
+    <EmbeddedResource Include="icons\node-pairs-fixed_nodes.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\eight-nodes-nodal-force.bmp" />
+    <EmbeddedResource Include="icons\four-nodes-nodal-force.bmp" />
+    <EmbeddedResource Include="icons\two-nodes-nodal_force.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\two-nodes-line_elements.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\four-nodes-quad_elements.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\eight-nodes-quad_elements.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\node_pairs-line_elements.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\formfindGravity.bmp" />
+    <EmbeddedResource Include="icons\normalGravity.bmp" />
+    <EmbeddedResource Include="icons\zeroGravity.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\polyline-line-elements.bmp" />
+    <EmbeddedResource Include="icons\polyline-nodal-forces.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\curve-fixed_nodes.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\curve-line_elements.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\curve-nodal_forces.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\mesh-nodal_forces.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\mesh-quad_elements.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\surface-nodal_forces.bmp" />
+    <EmbeddedResource Include="icons\surface-quad_elements.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\jquery-2.0.3.intellisense.js" />
+    <Content Include="Scripts\jquery-2.0.3.js" />
+    <Content Include="Scripts\jquery-2.0.3.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Scripts\jquery-2.0.3.min.map" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>Copy "$(TargetDir)Mothra4.dll" "$(TargetDir)merge\Mothra4.gha"
+Copy "$(TargetDir)Minilla3D.dll" "$(TargetDir)merge\"
+Copy "$(TargetDir)MyMath.dll" "$(TargetDir)merge\"
+Copy "$(TargetDir)Mesher.dll" "$(TargetDir)merge\"
+Copy "$(TargetDir)MothraUI.dll" "$(TargetDir)merge\"
+Copy "$(TargetDir)mosek*.*" "$(TargetDir)merge\"
+
+Copy  "$(TargetDir)merge\Mothra4.gha"  "c:\users\$(Username)\AppData\Roaming\Grasshopper\Libraries\
+Copy  "$(TargetDir)merge\*.dll"  "c:\users\$(Username)\AppData\Roaming\Grasshopper\Libraries\
+</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>Copy "$(TargetDir)..\DLL\*.dll" "$(TargetDir)"
+if  not exist "$(TargetDir)merge" mkdir "$(TargetDir)merge"
+
+</PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
