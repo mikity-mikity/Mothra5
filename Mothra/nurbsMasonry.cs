@@ -80,8 +80,10 @@ namespace mikity.ghComponents
             public double x,y,z;
             public double airyHeight;
             public int N;
-            public List<branch> share=new List<branch>();
-            public List<int> number = new List<int>();
+            public List<branch> shareB=new List<branch>();
+            public List<leaf> shareL = new List<leaf>();
+            public List<int> numberB = new List<int>();
+            public List<int> numberL = new List<int>();
             public int varOffset;
             public int conOffset;
             public bool compare(Point3d P)
@@ -101,8 +103,8 @@ namespace mikity.ghComponents
             public node()
             {
                 N = 0;
-                share.Clear();
-                number.Clear();
+                shareB.Clear();
+                numberB.Clear();
                 nodeType = type.fr;
             }
         }
@@ -311,14 +313,14 @@ namespace mikity.ghComponents
             {
                 if (ready)
                 {
-                    hodgeStar(listLeaf, listBranch, listNode, myControlBox.coeff, myControlBox.sScale);
+                    hodgeStar(listLeaf, listBranch,myControlBox.coeff, myControlBox.sScale);
                     ready = true;
                     this.ExpirePreview(true);
                 }
             });
             myControlBox.setFunctionToReflect(() => {
                 zScale = Rhino.Geometry.Transform.Scale(Plane.WorldXY, 1, 1, myControlBox.zScale);
-                hodgeStar(listLeaf, listBranch, listNode, myControlBox.coeff, myControlBox.sScale);
+                hodgeStar(listLeaf, listBranch, myControlBox.coeff, myControlBox.sScale);
                 this.ExpirePreview(true);
             });
         }
@@ -519,7 +521,7 @@ namespace mikity.ghComponents
                 mosek1(listLeaf, listBranch, listSlice, true, myControlBox.allow,myControlBox.objective);
             else
                 mosek1(listLeaf, listBranch, listSlice, false, myControlBox.allow,myControlBox.objective);
-            hodgeStar(listLeaf, listBranch, listNode, myControlBox.coeff, myControlBox.sScale);
+            hodgeStar(listLeaf, listBranch, myControlBox.coeff, myControlBox.sScale);
             ready = true;
             this.ExpirePreview(true);
         }
@@ -680,64 +682,6 @@ namespace mikity.ghComponents
                 listBranch.Add(branch);
             }
 
-            // Connect nodes
-            foreach (var node in listNode)
-            {
-                node.N = 0;
-                node.share.Clear();
-                node.number.Clear();
-            }
-            foreach (var branch in listBranch)
-            {
-                var P = branch.crv.Points[0].Location;
-                bool flag = false;
-                foreach (var node in listNode)
-                {
-                    if (node.compare(P))
-                    {
-                        flag = true;
-                        node.N++;
-                        node.share.Add(branch);
-                        node.number.Add(0);
-                        break;
-                    }
-                }
-                if (!flag)
-                {
-                    var newNode=new node();
-                    listNode.Add(newNode);
-                    newNode.N++;
-                    newNode.share.Add(branch);
-                    newNode.number.Add(0);
-                    newNode.x = P.X;
-                    newNode.y = P.Y;
-                    newNode.z = P.Z;
-                }
-                var Q = branch.crv.Points[branch.N - 1].Location;
-                flag = false;
-                foreach (var node in listNode)
-                {
-                    if (node.compare(Q))
-                    {
-                        flag = true;
-                        node.N++;
-                        node.share.Add(branch);
-                        node.number.Add(branch.N-1);
-                        break;
-                    }
-                }
-                if (!flag)
-                {
-                    var newNode = new node();
-                    listNode.Add(newNode);
-                    newNode.N++;
-                    newNode.share.Add(branch);
-                    newNode.number.Add(branch.N-1);
-                    newNode.x = Q.X;
-                    newNode.y = Q.Y;
-                    newNode.z = Q.Z;
-                }
-            }
             for(int i=0;i<_listSrf.Count;i++)
             {
                 var srf = _listSrf[i];
@@ -774,6 +718,78 @@ namespace mikity.ghComponents
                 curve = leaf.srf.IsoCurve(1, domainU.T0) as NurbsCurve;
                 leaf.flip[3] = findCurve(leaf, ref leaf.branch[3], listBranch, curve);//left
 
+            }
+            // Connect nodes
+            foreach (var branch in listBranch)
+            {
+                for (int i = 0; i < branch.crv.Points.Count; i++)
+                {
+                    var P = branch.crv.Points[i].Location;
+                    bool flag = false;
+                    foreach (var node in listNode)
+                    {
+                        if (node.compare(P))
+                        {
+                            flag = true;
+                            node.N++;
+                            node.shareB.Add(branch);
+                            node.numberB.Add(i);
+                            if (branch.branchType == branch.type.fix)
+                            {
+                                node.nodeType = node.type.fx;
+                            }
+                            break;
+                        }
+                    }
+                    if (!flag)
+                    {
+                        var newNode = new node();
+                        listNode.Add(newNode);
+                        newNode.N = 1;
+                        newNode.shareB.Add(branch);
+                        newNode.numberB.Add(i);
+                        newNode.x = P.X;
+                        newNode.y = P.Y;
+                        newNode.z = 0;
+                        if (branch.branchType == branch.type.fix)
+                        {
+                            newNode.nodeType = node.type.fx;
+                        }
+                    }
+                }
+            }
+            foreach (var leaf in listLeaf)
+            {
+                for (int j = 0; j < leaf.srf.Points.CountV; j++)
+                {
+                    for (int i = 0; i < leaf.srf.Points.CountU; i++)
+                    {
+                        var P = leaf.srf.Points.GetControlPoint(i, j).Location;
+                        bool flag = false;
+                        foreach (var node in listNode)
+                        {
+                            if (node.compare(P))
+                            {
+                                flag = true;
+                                node.N++;
+                                node.shareL.Add(leaf);
+                                node.numberL.Add(i + j * leaf.srf.Points.CountU);
+                                break;
+                            }
+                        }
+                        if (!flag)
+                        {
+                            var newNode = new node();
+                            listNode.Add(newNode);
+                            newNode.N = 1;
+                            newNode.x = P.X;
+                            newNode.y = P.Y;
+                            newNode.z = 0;
+                            newNode.shareL.Add(leaf);
+                            newNode.numberL.Add(i + j * leaf.srf.Points.CountU);
+                        }
+                    }
+                }
             }
             //multiqudric surface
             var A=new Rhino.Geometry.Matrix(listPnt.Count,listPnt.Count);

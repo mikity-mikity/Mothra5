@@ -17,7 +17,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -39,12 +39,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="GH_IO">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Rhinoceros 4.0\Plug-ins\Grasshopper\GH_IO.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>DLL\GH_IO.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Grasshopper">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Rhinoceros 4.0\Plug-ins\Grasshopper\Grasshopper.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>DLL\Grasshopper.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MatrixInterf, Version=2.0.5.0, Culture=neutral, PublicKeyToken=1fa71b5ffec10e32, processorArchitecture=MSIL">
       <Private>False</Private>
@@ -60,10 +60,9 @@
     <Reference Include="PresentationFramework.Aero">
       <Private>True</Private>
     </Reference>
-    <Reference Include="RhinoCommon, Version=5.1.30000.4, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\RhinoCommon.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="RhinoCommon">
+      <HintPath>DLL\RhinoCommon.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="ShoArray, Version=2.0.5.0, Culture=neutral, PublicKeyToken=1635376d5e62ab5f, processorArchitecture=MSIL">
       <Private>False</Private>
