@@ -367,6 +367,7 @@ namespace mikity.ghComponents
             double infinity = 0;
             int numvar = 0;
             int numcon = 0;
+            force *= 10d;
             foreach (var leaf in _listLeaf)
             {
                 leaf.varOffset = numvar;
@@ -439,16 +440,16 @@ namespace mikity.ghComponents
                 for (int i = 0; i < node.shareB.Count; i++)
                 {
                     int index = node.numberB[i]*3 + node.shareB[i].varOffset;
-                    merge[index+0,k*3+0]=1d;
-                    merge[index+1,k*3+1]=1d;
-                    merge[index+2,k*3+2]=1d;
+                    merge[index + 0, k * 3 + 0] = 1d;
+                    merge[index + 1, k * 3 + 1] = 1d;
+                    merge[index + 2, k * 3 + 2] = 1d;
                 }
                 for (int i = 0; i < node.shareL.Count; i++)
                 {
                     int index = node.numberL[i]*3 + node.shareL[i].varOffset;
-                    merge[index+0,k*3+0]=1d;
-                    merge[index+1,k*3+1]=1d;
-                    merge[index+2,k*3+2]=1d;
+                    merge[index + 0, k * 3 + 0] = 1d;
+                    merge[index + 1, k * 3 + 1] = 1d;
+                    merge[index + 2, k * 3 + 2] = 1d;
                 }
             }
             foreach (var leaf in _listLeaf)

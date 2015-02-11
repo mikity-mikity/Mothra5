@@ -105,6 +105,8 @@ namespace mikity.ghComponents
                 N = 0;
                 shareB.Clear();
                 numberB.Clear();
+                shareL.Clear();
+                numberL.Clear();
                 nodeType = type.fr;
             }
         }
