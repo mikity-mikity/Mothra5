@@ -364,28 +364,10 @@ namespace mikity.ghComponents
         }
         public void mosek2(List<leaf> _listLeaf, List<branch> _listBranch, List<node> _listNode, double force)
         {
-            double infinity = 0;
-            int numvar = 0;
-            int numcon = 0;
-            force *= 10d;
-            foreach (var leaf in _listLeaf)
-            {
-                leaf.varOffset = numvar;
-                leaf.conOffset = numcon;  //no conditions
-                numvar += leaf.nU * leaf.nV * 3;  //x,y,z coordinates
-            }
-            foreach (var branch in _listBranch)
-            {
-                branch.varOffset = numvar;
-                branch.conOffset = numcon;
-                numvar += branch.N*3;   //x,y,z coodinates
-            }
             //variable settings
-
-            ShoNS.Array.SparseDoubleArray mat = new SparseDoubleArray(numvar, numvar);
-            ShoNS.Array.SparseDoubleArray F = new SparseDoubleArray(numvar,1);
+            ShoNS.Array.SparseDoubleArray mat = new SparseDoubleArray(_listNode.Count * 3, _listNode.Count * 3);
+            ShoNS.Array.SparseDoubleArray F = new SparseDoubleArray(_listNode.Count * 3, 1);
             ShoNS.Array.SparseDoubleArray xx = new SparseDoubleArray(_listNode.Count*3,1);
-            ShoNS.Array.SparseDoubleArray merge = new SparseDoubleArray(numvar, _listNode.Count*3);
             ShoNS.Array.SparseDoubleArray shift = new SparseDoubleArray(_listNode.Count*3, _listNode.Count*3);
             for (int k = 0; k < _listNode.Count;k++ )
             {
@@ -410,6 +392,7 @@ namespace mikity.ghComponents
             }
             
             List<int> series=new List<int>();
+            List<Point3d> origin = new List<Point3d>();
             for(int i=0;i<_listNode.Count;i++)
             {
                 series.Add(i);
@@ -425,6 +408,7 @@ namespace mikity.ghComponents
                     series[i]=L2;
                 }else{
                     series[i]=L1;
+                    origin.Add(new Point3d(node.x, node.y, node.z));
                     L1++;
                 }
             }
@@ -433,31 +417,7 @@ namespace mikity.ghComponents
                 shift[i * 3 + 0, series[i] * 3 + 0] = 1;
                 shift[i * 3 + 1, series[i] * 3 + 1] = 1;
                 shift[i * 3 + 2, series[i] * 3 + 2] = 1;
-            }
-            for(int k=0;k<_listNode.Count;k++)
-            {
-                var node = _listNode[k];
-                for (int i = 0; i < node.shareB.Count; i++)
-                {
-                    int index = node.numberB[i]*3 + node.shareB[i].varOffset;
-                    merge[index + 0, k * 3 + 0] = 1d;
-                    merge[index + 1, k * 3 + 1] = 1d;
-                    merge[index + 2, k * 3 + 2] = 1d;
-                }
-                for (int i = 0; i < node.shareL.Count; i++)
-                {
-                    int index = node.numberL[i]*3 + node.shareL[i].varOffset;
-                    merge[index + 0, k * 3 + 0] = 1d;
-                    merge[index + 1, k * 3 + 1] = 1d;
-                    merge[index + 2, k * 3 + 2] = 1d;
-                }
-            }
-            foreach (var leaf in _listLeaf)
-            {
-                for (int i = 0; i < leaf.nU * leaf.nV; i++)
-                {
-                    F[i * 3 + 2 + leaf.varOffset,0]= -force;//force
-                }
+                F[i * 3 + 2, 0] = -force;//force
             }
             foreach (var leaf in _listLeaf)
             {
@@ -477,8 +437,7 @@ namespace mikity.ghComponents
                                         for (int m = 0; m < 2; m++)
                                         {
                                             var val = tup.B[l, m, i * 3 + k, j * 3 + k] * tup.SPK[l, m] * tup.refDv * tup.area;
-                                            if (leaf.varOffset + tup.internalIndex[j] * 3 + k > leaf.varOffset + tup.internalIndex[i] * 3 + k) continue;
-                                            mat[leaf.varOffset + tup.internalIndex[i] * 3 + k, leaf.varOffset + tup.internalIndex[j] * 3 + k] += val;
+                                            mat[leaf.globalIndex[tup.internalIndex[i]] * 3 + k, leaf.globalIndex[tup.internalIndex[j]] * 3 + k] += val;
                                         }
                                     }
                                 }
@@ -505,8 +464,7 @@ namespace mikity.ghComponents
                                         for (int m = 0; m < 1; m++)
                                         {
                                             var val2 = tup.B[l, m, i * 3 + k, j * 3 + k] * tup.SPK[l, m] * tup.refDv * tup.area;
-                                            if (branch.varOffset + tup.internalIndex[j] * 3 + k > branch.varOffset + tup.internalIndex[i] * 3 + k) continue;
-                                            mat[branch.varOffset + tup.internalIndex[i] * 3 + k, branch.varOffset + tup.internalIndex[j] * 3 + k] += val2;
+                                            mat[branch.globalIndex[tup.internalIndex[i]] * 3 + k, branch.globalIndex[tup.internalIndex[j]] * 3 + k] += val2;
                                         }
                                     }
                                 }
@@ -515,18 +473,18 @@ namespace mikity.ghComponents
                     }
                 }
             }
-            var newMat = (merge.T.Multiply(mat) as SparseDoubleArray).Multiply(merge) as SparseDoubleArray;
-            var newnewMat = (shift.T.Multiply(newMat) as SparseDoubleArray).Multiply(shift) as SparseDoubleArray;
+            var newMat = (shift.T.Multiply(mat) as SparseDoubleArray).Multiply(shift) as SparseDoubleArray;
             var newxx = shift.T.Multiply(xx) as SparseDoubleArray;
-            var newF = (merge.T.Multiply(F) as SparseDoubleArray);
-            var newnewF = shift.T.Multiply(newF) as SparseDoubleArray;
+            var newF = shift.T.Multiply(F) as SparseDoubleArray;
 
-            var T = newnewMat.GetSliceDeep(0, L1 * 3 - 1, 0, L1 * 3 - 1);
-            var D = newnewMat.GetSliceDeep(0, L1 * 3 - 1, L1 * 3, _listNode.Count * 3 - 1);
+            var T = newMat.GetSliceDeep(0, L1 * 3 - 1, 0, L1 * 3 - 1);
+            var D = newMat.GetSliceDeep(0, L1 * 3 - 1, L1 * 3, _listNode.Count * 3 - 1);
             var fx = newxx.GetSliceDeep(L1 * 3, _listNode.Count * 3 - 1, 0, 0);
-            newnewF = newnewF.GetSliceDeep(0, L1 * 3 - 1, 0, 0);
-            var solve = new LU(T);
-            var b = DoubleArray.From((-newnewF - (D * fx as SparseDoubleArray)));
+            newF = newF.GetSliceDeep(0, L1 * 3 - 1, 0, 0);
+            var solve = new SparseLU(T);
+            var df = D * fx as SparseDoubleArray;
+            var b = DoubleArray.From((-newF - df));
+ 
             var sol=solve.Solve(b);
             var exSol = new SparseDoubleArray(sol.GetLength(0)+fx.GetLength(0),1);
             for (int i = 0; i < L1; i++)
@@ -542,13 +500,12 @@ namespace mikity.ghComponents
                 exSol[i * 3 + 2, 0] = fx[(i - L1) * 3 + 2, 0];
             }
             exSol = shift.Multiply(exSol) as SparseDoubleArray;
-            exSol = merge.Multiply(exSol) as SparseDoubleArray;
             foreach (var branch in _listBranch)
             {
                 branch.shellCrv = branch.crv.Duplicate() as NurbsCurve;
                 for (int i = 0; i < branch.N; i++)
                 {
-                    branch.shellCrv.Points.SetPoint(i, new Point3d(exSol[branch.varOffset + (i) * 3 + 0, 0], exSol[branch.varOffset + (i) * 3 + 1, 0], exSol[branch.varOffset + (i) * 3 + 2, 0]));
+                    branch.shellCrv.Points.SetPoint(i, new Point3d(exSol[branch.globalIndex[i] * 3 + 0, 0], exSol[branch.globalIndex[i] * 3 + 1, 0], exSol[branch.globalIndex[i] * 3 + 2, 0]));
                 }
             }
             foreach (var leaf in _listLeaf)
@@ -558,7 +515,7 @@ namespace mikity.ghComponents
                 {
                     for (int j = 0; j < leaf.nV; j++)
                     {
-                        leaf.shellSrf.Points.SetControlPoint(i, j, new ControlPoint(exSol[leaf.varOffset + (i + leaf.nU * j) * 3 + 0, 0], exSol[leaf.varOffset + (i + leaf.nU * j) * 3 + 1, 0], exSol[leaf.varOffset + (i + leaf.nU * j) * 3 + 2, 0]));
+                        leaf.shellSrf.Points.SetControlPoint(i, j, new ControlPoint(exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 0, 0], exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 1, 0], exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 2, 0]));
                     }
                 }
             }
@@ -1125,10 +1082,10 @@ namespace mikity.ghComponents
                     double g = branch.tuples[i].gij[0, 0];
                     double val = coeff(g);
                     branch.tuples[i].SPK[0, 0] = branch.tuples[i].H[0, 0] * val*sScale;
-                    if (branch.tuples[i].SPK[0, 0] <= 0)
+                    /*if (branch.tuples[i].SPK[0, 0] <= 0)
                     {
                         branch.tuples[i].SPK[0, 0] = 0.00000000000001d;//E-14
-                    }
+                    }*/
 
                 }
             }
@@ -1146,7 +1103,7 @@ namespace mikity.ghComponents
                     leaf.tuples[j].computeEigenVectors();
                     var tup = leaf.tuples[j];
                     var det = tup.SPK[0, 0] * tup.SPK[1, 1] - tup.SPK[0, 1] * tup.SPK[1, 0];
-                    if (tup.eigenValues[0] < 0 || tup.eigenValues[1] < 0)
+                    /*if (tup.eigenValues[0] < 0 || tup.eigenValues[1] < 0)
                     {
                         if (tup.eigenValues[0] < 0) tup.eigenValues[0] = 0.00000000000001d;//E-14
                         if (tup.eigenValues[1] < 0) tup.eigenValues[1] = 0.00000000000001d;//E-14
@@ -1173,7 +1130,7 @@ namespace mikity.ghComponents
                         tup.SPK[0, 1] = D11 * tup.Gij[0, 1] + D12 * tup.Gij[1, 1];
                         tup.SPK[1, 0] = D21 * tup.Gij[0, 0] + D22 * tup.Gij[1, 0];
                         tup.SPK[1, 1] = D21 * tup.Gij[1, 0] + D22 * tup.Gij[1, 1];
-                    }
+                    }*/
                     tup.SPK[0, 0] *= sScale;
                     tup.SPK[1, 0] *= sScale;
                     tup.SPK[0, 1] *= sScale;

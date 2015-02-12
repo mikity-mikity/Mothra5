@@ -17,6 +17,10 @@ namespace mikity.ghComponents
             {
                 return;
             }
+            if (listArrow != null)
+            {
+                args.Display.DrawLines(listArrow, System.Drawing.Color.Red);
+            }
             //targetSrf
             if (listPnt != null)
             {

@@ -164,6 +164,7 @@ namespace mikity.ghComponents
             public slice slice;
             public slice2 slice2;
             public string sliceKey;
+            public int[] globalIndex;
             public enum type
             {
                 reinforce,open,kink,fix
@@ -191,6 +192,7 @@ namespace mikity.ghComponents
             public Interval domU, domV;
             public tuple_ex[] tuples;
             public tuple_ex[] edgeTuples;
+            public int[] globalIndex;
         }
         public class dl_ex : Minilla3D.Elements.nurbsCurve.dl
         {
@@ -269,6 +271,7 @@ namespace mikity.ghComponents
         List<leaf> listLeaf;
         List<branch> listBranch;
         List<node> listNode;
+        List<Line> listArrow;
         public List<Point3d> listPnt;
         List<Point3d> a;
         List<Point3d> a2;
@@ -722,8 +725,45 @@ namespace mikity.ghComponents
 
             }
             // Connect nodes
+            foreach (var leaf in listLeaf)
+            {
+                leaf.globalIndex = new int[leaf.srf.Points.CountU * leaf.srf.Points.CountV];
+                for (int j = 0; j < leaf.srf.Points.CountV; j++)
+                {
+                    for (int i = 0; i < leaf.srf.Points.CountU; i++)
+                    {
+                        var P = leaf.srf.Points.GetControlPoint(i, j).Location;
+                        bool flag = false;
+                        foreach (var node in listNode)
+                        {
+                            if (node.compare(P))
+                            {
+                                flag = true;
+                                node.N++;
+                                node.shareL.Add(leaf);
+                                node.numberL.Add(i + j * leaf.nU);
+                                leaf.globalIndex[i + j * leaf.nU] = listNode.IndexOf(node);
+                                break;
+                            }
+                        }
+                        if (!flag)
+                        {
+                            var newNode = new node();
+                            listNode.Add(newNode);
+                            newNode.N = 1;
+                            newNode.x = P.X;
+                            newNode.y = P.Y;
+                            newNode.z = P.Z;
+                            newNode.shareL.Add(leaf);
+                            newNode.numberL.Add(i + j * leaf.nU);
+                            leaf.globalIndex[i + j * leaf.nU] = listNode.IndexOf(newNode);
+                        }
+                    }
+                }
+            }
             foreach (var branch in listBranch)
             {
+                branch.globalIndex = new int[branch.crv.Points.Count];
                 for (int i = 0; i < branch.crv.Points.Count; i++)
                 {
                     var P = branch.crv.Points[i].Location;
@@ -740,6 +780,7 @@ namespace mikity.ghComponents
                             {
                                 node.nodeType = node.type.fx;
                             }
+                            branch.globalIndex[i] = listNode.IndexOf(node);
                             break;
                         }
                     }
@@ -752,44 +793,12 @@ namespace mikity.ghComponents
                         newNode.numberB.Add(i);
                         newNode.x = P.X;
                         newNode.y = P.Y;
-                        newNode.z = 0;
+                        newNode.z = P.Z;
                         if (branch.branchType == branch.type.fix)
                         {
                             newNode.nodeType = node.type.fx;
                         }
-                    }
-                }
-            }
-            foreach (var leaf in listLeaf)
-            {
-                for (int j = 0; j < leaf.srf.Points.CountV; j++)
-                {
-                    for (int i = 0; i < leaf.srf.Points.CountU; i++)
-                    {
-                        var P = leaf.srf.Points.GetControlPoint(i, j).Location;
-                        bool flag = false;
-                        foreach (var node in listNode)
-                        {
-                            if (node.compare(P))
-                            {
-                                flag = true;
-                                node.N++;
-                                node.shareL.Add(leaf);
-                                node.numberL.Add(i + j * leaf.srf.Points.CountU);
-                                break;
-                            }
-                        }
-                        if (!flag)
-                        {
-                            var newNode = new node();
-                            listNode.Add(newNode);
-                            newNode.N = 1;
-                            newNode.x = P.X;
-                            newNode.y = P.Y;
-                            newNode.z = 0;
-                            newNode.shareL.Add(leaf);
-                            newNode.numberL.Add(i + j * leaf.srf.Points.CountU);
-                        }
+                        branch.globalIndex[i] = listNode.IndexOf(newNode);
                     }
                 }
             }
