@@ -521,7 +521,7 @@ namespace mikity.ghComponents
             }
             
         }
-        public void mosek1(List<leaf> _listLeaf, List<branch> _listBranch, Dictionary<string, slice> _listSlice,Dictionary<string,range>_listRange,Dictionary<string,range>_listRangeOpen, bool obj, double allow, bool obj2)
+        public void mosek1(List<leaf> _listLeaf, List<branch> _listBranch, Dictionary<string, slice> _listSlice,Dictionary<string,range>_listRange,Dictionary<string,range>_listRangeOpen,Dictionary<string,range> _listRangeLeaf, bool obj, double allow, bool obj2)
         {
             // Since the value infinity is never used, we define
             // 'infinity' symbolic purposes only
@@ -607,9 +607,25 @@ namespace mikity.ghComponents
                 for (int i = 0; i < leaf.r; i++)
                 {
                     int n = i + leaf.r*3+(leaf.nU * leaf.nV);
-                    bkx[n + leaf.varOffset] = mosek.boundkey.fr;
-                    blx[n + leaf.varOffset] = -infinity;
-                    bux[n + leaf.varOffset] = infinity;
+                    if (leaf.range.rangeType == range.type.lo)
+                    {
+                        bkx[n + leaf.varOffset] = mosek.boundkey.lo;
+                        blx[n + leaf.varOffset] = leaf.range.lb;
+                        bux[n + leaf.varOffset] = 0;
+                    }
+                    else if (leaf.range.rangeType == range.type.up)
+                    {
+                        bkx[n + leaf.varOffset] = mosek.boundkey.up;
+                        blx[n + leaf.varOffset] = 0;
+                        bux[n + leaf.varOffset] = leaf.range.ub;
+                    }
+                    else
+                    {
+                        bkx[n + leaf.varOffset] = mosek.boundkey.ra;
+                        blx[n + leaf.varOffset] = leaf.range.lb;
+                        bux[n + leaf.varOffset] = leaf.range.ub;
+                    }
+
                 }
                 
                 ////////////////
@@ -874,12 +890,14 @@ namespace mikity.ghComponents
                         for (int i = 0; i < leaf.r; i++)
                         {
                             int target = i * 3 + (leaf.nU * leaf.nV) + leaf.varOffset;   //variable number
+                            int target2 = i + leaf.r*3+(leaf.nU * leaf.nV) + leaf.varOffset;   //variable number
 
                             int NH= leaf.r*3+i; //condition number
                             task.putaij(NH + leaf.conOffset, target, 1);
                             task.putaij(NH + leaf.conOffset, target + 1, 1);
-                            task.putaij(NH + leaf.conOffset, target + 3, -1);
-
+                            task.putaij(NH + leaf.conOffset, target2, -1);
+                            task.putconbound(NH+leaf.conOffset, mosek.boundkey.fx, 0, 0);
+                         
                         }
 
                         //if (leaf.leafType == leaf.type.convex)
@@ -1086,7 +1104,7 @@ namespace mikity.ghComponents
                     {
                         for (int i = 0; i < leaf.r; i++)
                         {
-                            int target = i * 3 + (leaf.nU * leaf.nV) + leaf.varOffset;
+                            int target = i + leaf.r*3+(leaf.nU * leaf.nV) + leaf.varOffset;
                             leaf.tuples[i].NH = xx[target];
                         }
                     }
@@ -1116,9 +1134,25 @@ namespace mikity.ghComponents
                             }
                             else
                             {
-                                branch.tuples[i].H[0, 0] = branch.tuples[i].left.valD + branch.tuples[i].right.valD;
+                                //branch.tuples[i].H[0, 0] = branch.tuples[i].left.valD + branch.tuples[i].right.valD;
+                                branch.tuples[i].H[0, 0] = xx[branch.N + i + branch.varOffset];
                             }
                         }
+                    }
+                    foreach (var range in _listRangeLeaf.Values)
+                    {
+                        double min = 10000d, max = -10000d;
+                        foreach (var leaf in range.lL)
+                        {
+                            for (int i = 0; i < leaf.tuples.Count(); i++)
+                            {
+                                if (leaf.tuples[i].NH > max) max = leaf.tuples[i].NH;
+                                if (leaf.tuples[i].NH < min) min = leaf.tuples[i].NH;
+                            }
+                        }
+                        range.lastMin = min;
+                        range.lastMax = max;
+                        range.firstPathDone = true;
                     }
                     foreach (var range in _listRange.Values)
                     {

@@ -244,6 +244,7 @@ namespace Minilla3D.Elements
         }
         public void computeTangent(tuple tup)
         {
+            ///below is somehow suspicious code
             if (elemDim != 2) return;
             if (tup.dcdt == null) return;
             if (tup.dcdt.Count() != 2) return;

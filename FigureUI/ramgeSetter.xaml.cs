@@ -41,11 +41,12 @@ namespace Mothra.UI
             func = _func;
         }
         public void setMeasured(double min,double max){
-            this.measured1.Content = min.ToString("g");
-            this.measured2.Content = max.ToString("g");
+            this.measured1.Content = min.ToString("g4");
+            this.measured2.Content = max.ToString("g4");
         }
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
+
             if (ubEnabel.IsChecked == true)
             {
                 double lb, ub;

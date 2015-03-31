@@ -121,6 +121,7 @@ namespace mikity.ghComponents
             public double lastMin = 0, lastMax = 0;
             public bool firstPathDone = false;
             public List<branch> lB = new List<branch>();
+            public List<leaf> lL = new List<leaf>();
         }
         public class slice2
         {
@@ -187,6 +188,7 @@ namespace mikity.ghComponents
         {
             public int varOffset;
             public int conOffset;
+            public range range;
             public Minilla3D.Objects.masonry myMasonry;
             public NurbsSurface srf;
             public NurbsSurface airySrf;
@@ -293,6 +295,7 @@ namespace mikity.ghComponents
         Dictionary<string, slice2> listSlice2;
         Dictionary<string, range> listRange;
         Dictionary<string, range> listRangeOpen;
+        Dictionary<string, range> listRangeLeaf;
 
         List<NurbsCurve> listError;
         private void init()
@@ -542,9 +545,9 @@ namespace mikity.ghComponents
             }
             //call mosek
             if(listPnt.Count>0)
-                mosek1(listLeaf, listBranch, listSlice, listRange, listRangeOpen, true, myControlBox.allow, myControlBox.objective);
+                mosek1(listLeaf, listBranch, listSlice, listRange, listRangeOpen, listRangeLeaf,true, myControlBox.allow, myControlBox.objective);
             else
-                mosek1(listLeaf, listBranch, listSlice, listRange, listRangeOpen, false, myControlBox.allow, myControlBox.objective);
+                mosek1(listLeaf, listBranch, listSlice, listRange, listRangeOpen, listRangeLeaf,false, myControlBox.allow, myControlBox.objective);
             hodgeStar(listLeaf, listBranch, myControlBox.coeff, myControlBox.sScale);
             foreach (var adj in myControlBox.listAdjusters)
             {
@@ -619,6 +622,7 @@ namespace mikity.ghComponents
             listSlice2 = new Dictionary<string, slice2>();
             listRange = new Dictionary<string, range>();
             listRangeOpen = new Dictionary<string, range>();
+            listRangeLeaf = new Dictionary<string, range>();
             listLeaf = new List<leaf>();
             listBranch = new List<branch>();
             listNode=new List<node>();
@@ -655,7 +659,7 @@ namespace mikity.ghComponents
                 {
                     branch.branchType = branch.type.kink;
                     var key = crvTypes[i].Replace("kink", "");
-                    if (key == "") key = "&%";
+                    if (key == "") key = "kink"; else key = "kink:" + key;
                     branch.sliceKey = key;
                     try
                     {
@@ -704,7 +708,7 @@ namespace mikity.ghComponents
                 {
                     branch.branchType = branch.type.open;
                     var key = crvTypes[i].Replace("open", "");
-                    if (key == "") key = "&%";
+                    if (key == "") key = "open"; else key = "open:" + key;
                     branch.sliceKey = key;
                     try
                     {
@@ -824,6 +828,48 @@ namespace mikity.ghComponents
                 //(0,1)->(0,0)
                 curve = leaf.srf.IsoCurve(1, domainU.T0) as NurbsCurve;
                 leaf.flip[3] = findCurve(leaf, ref leaf.branch[3], listBranch, curve);//left
+
+                var key = "leaf";
+                try
+                {
+                    leaf.range = listRangeLeaf[key];
+                    leaf.range.rangeType = range.type.lo;
+                    leaf.range.lb = 0;
+                    leaf.range.ub = 0;
+                    leaf.range.lL.Add(leaf);
+                }
+                catch (KeyNotFoundException)
+                {
+                    listRangeLeaf[key] = new range();
+                    leaf.range = listRangeLeaf[key];
+                    leaf.range.rangeType = range.type.lo;
+                    leaf.range.lb = 0;
+                    leaf.range.ub = 0;
+                    leaf.range.lL.Add(leaf);
+                    var adjuster = myControlBox.addRangeSetter(key, (th, sw, lb, ub) =>
+                    {
+                        if (listRangeLeaf[key].firstPathDone)
+                        {
+                            th.setMeasured(listRangeLeaf[key].lastMin, listRangeLeaf[key].lastMax);
+                        }
+                        foreach (var _leaf in listRangeLeaf[key].lL)
+                        {
+                            if (sw == 0)
+                            {
+                                _leaf.range.rangeType = range.type.lo;
+                                _leaf.range.lb = lb;
+                                _leaf.range.ub = 0d;
+                            }
+                            if (sw == 2)
+                            {
+                                _leaf.range.rangeType = range.type.ra;
+                                _leaf.range.lb = lb;
+                                _leaf.range.ub = ub;
+                            }
+                        }
+                    }
+                     );
+                }
 
             }
             // Connect nodes

@@ -11,14 +11,14 @@
             <CheckBox DockPanel.Dock="Left" Name="lbEnabel" VerticalAlignment="Center" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" />
             <TextBox Width="60" Name="lbValue"></TextBox>
             <Label Name="measured1">N/A</Label>
-            <Label>if unchecked, is set to 0</Label>
+            <Label>if unchecked, will be set to 0</Label>
         </DockPanel>
         <DockPanel Height="auto" HorizontalAlignment="Stretch" Margin="0" Name="dockPanel2" VerticalAlignment="Bottom" Width="Auto">
             <Label DockPanel.Dock="Left" Content="    :ub" VerticalAlignment="Center" Name="Label2"></Label>
             <CheckBox DockPanel.Dock="Left" Name="ubEnabel" VerticalAlignment="Center" Unchecked="CheckBox_Unchecked_1" Checked="CheckBox_Checked_1" />
             <TextBox Width="60" Name="ubValue"></TextBox>
             <Label Name="measured2">N/A</Label>
-            <Label>if unchecked, set to +infinite</Label>
+            <Label>if unchecked, will be set to +infinite</Label>
         </DockPanel>
     </StackPanel>
 </UserControl>
