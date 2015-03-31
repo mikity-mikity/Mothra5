@@ -604,6 +604,13 @@ namespace mikity.ghComponents
                 }
                 //later mean curvature will be added here
                 //
+                for (int i = 0; i < leaf.r; i++)
+                {
+                    int n = i + leaf.r*3+(leaf.nU * leaf.nV);
+                    bkx[n + leaf.varOffset] = mosek.boundkey.fr;
+                    blx[n + leaf.varOffset] = -infinity;
+                    bux[n + leaf.varOffset] = infinity;
+                }
                 
                 ////////////////
                 //target z
@@ -864,7 +871,16 @@ namespace mikity.ghComponents
                         // mean curvature will be added here
                         //
                         //
+                        for (int i = 0; i < leaf.r; i++)
+                        {
+                            int target = i * 3 + (leaf.nU * leaf.nV) + leaf.varOffset;   //variable number
 
+                            int NH= leaf.r*3+i; //condition number
+                            task.putaij(NH + leaf.conOffset, target, 1);
+                            task.putaij(NH + leaf.conOffset, target + 1, 1);
+                            task.putaij(NH + leaf.conOffset, target + 3, -1);
+
+                        }
 
                         //if (leaf.leafType == leaf.type.convex)
                         for (int i = 0; i < leaf.r; i++)
