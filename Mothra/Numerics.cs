@@ -1082,7 +1082,14 @@ namespace mikity.ghComponents
                             }
                         }
                     }
-
+                    foreach (var leaf in _listLeaf)
+                    {
+                        for (int i = 0; i < leaf.r; i++)
+                        {
+                            int target = i * 3 + (leaf.nU * leaf.nV) + leaf.varOffset;
+                            leaf.tuples[i].NH = xx[target];
+                        }
+                    }
                     foreach (var branch in _listBranch)
                     {
                         branch.airyCrv = branch.crv.Duplicate() as NurbsCurve;
@@ -1121,7 +1128,7 @@ namespace mikity.ghComponents
                             for(int i=0;i<branch.tuples.Count();i++)
                             {
                                 if (branch.tuples[i].H[0, 0] > max) max = branch.tuples[i].H[0, 0];
-                                if (branch.tuples[i].H[0, 0] > min) min = branch.tuples[i].H[0, 0];
+                                if (branch.tuples[i].H[0, 0] < min) min = branch.tuples[i].H[0, 0];
                             }
                         }
                         range.lastMin = min;
@@ -1136,11 +1143,12 @@ namespace mikity.ghComponents
                             for (int i = 0; i < branch.tuples.Count(); i++)
                             {
                                 if (branch.tuples[i].H[0, 0] > max) max = branch.tuples[i].H[0, 0];
-                                if (branch.tuples[i].H[0, 0] > min) min = branch.tuples[i].H[0, 0];
+                                if (branch.tuples[i].H[0, 0] < min) min = branch.tuples[i].H[0, 0];
                             }
                         }
                         range.lastMin = min;
                         range.lastMax = max;
+                        range.firstPathDone = true;
                     }
 
                     foreach (var leaf in _listLeaf)

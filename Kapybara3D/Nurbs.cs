@@ -42,6 +42,7 @@ namespace Minilla3D.Elements
             public double[, , ,] B;
             public double[, , ,] D;
             public double[,] H;
+            public double NH;
             public double[,] SPK;
             public double[] s;
             public double[] va;
