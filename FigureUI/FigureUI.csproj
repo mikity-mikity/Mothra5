@@ -78,6 +78,9 @@
     <Compile Include="sliderRot.xaml.cs">
       <DependentUpon>sliderRot.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ramgeSetter.xaml.cs">
+      <DependentUpon>ramgeSetter.xaml</DependentUpon>
+    </Compile>
     <Compile Include="togglebutton.xaml.cs">
       <DependentUpon>togglebutton.xaml</DependentUpon>
     </Compile>
@@ -109,6 +112,10 @@
     <Page Include="sliderRot.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ramgeSetter.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="togglebutton.xaml">
       <SubType>Designer</SubType>

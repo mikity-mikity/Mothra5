@@ -521,7 +521,7 @@ namespace mikity.ghComponents
             }
             
         }
-        public void mosek1(List<leaf> _listLeaf, List<branch> _listBranch, Dictionary<string, slice> _listSlice,/*List<node> _listNode,*/ bool obj, double allow, bool obj2)
+        public void mosek1(List<leaf> _listLeaf, List<branch> _listBranch, Dictionary<string, slice> _listSlice,Dictionary<string,range>_listRange,Dictionary<string,range>_listRangeOpen, bool obj, double allow, bool obj2)
         {
             // Since the value infinity is never used, we define
             // 'infinity' symbolic purposes only
@@ -661,9 +661,27 @@ namespace mikity.ghComponents
                     //kink angle parameter
                     for (int i = 0; i < branch.tuples.Count(); i++)
                     {
-                        bkx[branch.N + i + branch.varOffset] = mosek.boundkey.fx;
-                        blx[branch.N + i + branch.varOffset] = 0;
-                        bux[branch.N + i + branch.varOffset] = 0;
+                        if (branch.range.rangeType == range.type.lo)
+                        {
+                            bkx[branch.N + i + branch.varOffset] = mosek.boundkey.lo;
+                            blx[branch.N + i + branch.varOffset] = branch.range.lb;
+                            bux[branch.N + i + branch.varOffset] = 0;
+                        }
+                        else if (branch.range.rangeType == range.type.up)
+                        {
+                            bkx[branch.N + i + branch.varOffset] = mosek.boundkey.up;
+                            blx[branch.N + i + branch.varOffset] = 0;
+                            bux[branch.N + i + branch.varOffset] = branch.range.ub;
+                        }
+                        else
+                        {
+                            bkx[branch.N + i + branch.varOffset] = mosek.boundkey.ra;
+                            blx[branch.N + i + branch.varOffset] = branch.range.lb;
+                            bux[branch.N + i + branch.varOffset] = branch.range.ub;
+                        }
+                        //bkx[branch.N + i + branch.varOffset] = mosek.boundkey.ra;
+                        //blx[branch.N + i + branch.varOffset] = 0;
+                        //bux[branch.N + i + branch.varOffset] = 0;
                     }
                 }
                 else if (branch.branchType == branch.type.kink)
@@ -677,9 +695,24 @@ namespace mikity.ghComponents
                     //kink angle parameter
                     for (int i = 0; i < branch.tuples.Count(); i++)
                     {
-                        bkx[branch.N + i + branch.varOffset] = mosek.boundkey.lo;
-                        blx[branch.N + i + branch.varOffset] = branch.lb;
-                        bux[branch.N + i + branch.varOffset] = 0;
+                        if (branch.range.rangeType == range.type.lo)
+                        {
+                            bkx[branch.N + i + branch.varOffset] = mosek.boundkey.lo;
+                            blx[branch.N + i + branch.varOffset] = branch.range.lb;
+                            bux[branch.N + i + branch.varOffset] = 0;
+                        }
+                        else if(branch.range.rangeType == range.type.up)
+                        {
+                            bkx[branch.N + i + branch.varOffset] = mosek.boundkey.up;
+                            blx[branch.N + i + branch.varOffset] = 0;
+                            bux[branch.N + i + branch.varOffset] = branch.range.ub;
+                        }
+                        else
+                        {
+                            bkx[branch.N + i + branch.varOffset] = mosek.boundkey.ra;
+                            blx[branch.N + i + branch.varOffset] = branch.range.lb;
+                            bux[branch.N + i + branch.varOffset] = branch.range.ub;
+                        }
                     }
                 }
                 else//free
@@ -1058,6 +1091,36 @@ namespace mikity.ghComponents
                             }
                         }
                     }
+                    foreach (var range in _listRange.Values)
+                    {
+                        double min=10000d,max=-10000d;
+                        foreach (var branch in range.lB)
+                        {
+                            for(int i=0;i<branch.tuples.Count();i++)
+                            {
+                                if (branch.tuples[i].H[0, 0] > max) max = branch.tuples[i].H[0, 0];
+                                if (branch.tuples[i].H[0, 0] > min) min = branch.tuples[i].H[0, 0];
+                            }
+                        }
+                        range.lastMin = min;
+                        range.lastMax = max;
+                        range.firstPathDone = true;
+                    }
+                    foreach (var range in _listRangeOpen.Values)
+                    {
+                        double min = 10000d, max = -10000d;
+                        foreach (var branch in range.lB)
+                        {
+                            for (int i = 0; i < branch.tuples.Count(); i++)
+                            {
+                                if (branch.tuples[i].H[0, 0] > max) max = branch.tuples[i].H[0, 0];
+                                if (branch.tuples[i].H[0, 0] > min) min = branch.tuples[i].H[0, 0];
+                            }
+                        }
+                        range.lastMin = min;
+                        range.lastMax = max;
+                    }
+
                     foreach (var leaf in _listLeaf)
                     {
                         leaf.airySrf = leaf.srf.Duplicate() as NurbsSurface;

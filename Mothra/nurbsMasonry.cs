@@ -110,6 +110,18 @@ namespace mikity.ghComponents
                 nodeType = type.fr;
             }
         }
+        public class range
+        {
+            public enum type
+            {
+                lo,ra,up
+            }
+            public type rangeType;
+            public double lb = 0, ub = 0;
+            public double lastMin = 0, lastMax = 0;
+            public bool firstPathDone = false;
+            public List<branch> lB = new List<branch>();
+        }
         public class slice2
         {
             public double height;
@@ -143,7 +155,6 @@ namespace mikity.ghComponents
         public class branch
         {
             //public bool obj = false;
-            public double lb = 0.0d;
             public NurbsCurve crv;
             public NurbsCurve airyCrv;
             public NurbsCurve shellCrv;
@@ -163,6 +174,7 @@ namespace mikity.ghComponents
             public dl_ex[] tuples;
             public slice slice;
             public slice2 slice2;
+            public range range;
             public string sliceKey;
             public int[] globalIndex;
             public enum type
@@ -279,6 +291,9 @@ namespace mikity.ghComponents
         List<Line> crossMagenta;
         Dictionary<string, slice> listSlice;
         Dictionary<string, slice2> listSlice2;
+        Dictionary<string, range> listRange;
+        Dictionary<string, range> listRangeOpen;
+
         List<NurbsCurve> listError;
         private void init()
         {
@@ -332,7 +347,7 @@ namespace mikity.ghComponents
         void computeG()
         {
             if (!ready) { System.Windows.Forms.MessageBox.Show("not ready"); return; }
-            mosek2(listLeaf, listBranch, listNode, myControlBox.force);
+            mosek2(listLeaf, listBranch, listNode,  myControlBox.force);
             this.ExpirePreview(true);
         }
         bool ready = false;
@@ -521,12 +536,20 @@ namespace mikity.ghComponents
                     }
                 }
             }
+            foreach(var adj in myControlBox.listAdjusters)
+            {
+                adj.update();
+            }
             //call mosek
             if(listPnt.Count>0)
-                mosek1(listLeaf, listBranch, listSlice, true, myControlBox.allow,myControlBox.objective);
+                mosek1(listLeaf, listBranch, listSlice, listRange, listRangeOpen, true, myControlBox.allow, myControlBox.objective);
             else
-                mosek1(listLeaf, listBranch, listSlice, false, myControlBox.allow,myControlBox.objective);
+                mosek1(listLeaf, listBranch, listSlice, listRange, listRangeOpen, false, myControlBox.allow, myControlBox.objective);
             hodgeStar(listLeaf, listBranch, myControlBox.coeff, myControlBox.sScale);
+            foreach (var adj in myControlBox.listAdjusters)
+            {
+                adj.update();
+            }
             ready = true;
             this.ExpirePreview(true);
         }
@@ -594,11 +617,12 @@ namespace mikity.ghComponents
 
             listSlice = new Dictionary<string, slice>();
             listSlice2 = new Dictionary<string, slice2>();
+            listRange = new Dictionary<string, range>();
+            listRangeOpen = new Dictionary<string, range>();
             listLeaf = new List<leaf>();
             listBranch = new List<branch>();
             listNode=new List<node>();
             myControlBox.clearSliders();
-
             for (int i = 0; i < _listCrv.Count; i++)
             {
                 var branch = new branch();
@@ -631,19 +655,56 @@ namespace mikity.ghComponents
                 {
                     branch.branchType = branch.type.kink;
                     var key = crvTypes[i].Replace("kink", "");
-                    double lb=0.0d;
-                    double _lb;
-                    bool res = double.TryParse(key, out _lb);
-                    if (res) lb = _lb; else lb = 0.0d;
-                    branch.lb = lb;
-                    //int NN;
-                    //res = int.TryParse(key, out NN);
-                    //if (res) { if (NN == 123) { branch.obj = true; } }
-                        
+                    if (key == "") key = "&%";
+                    branch.sliceKey = key;
+                    try
+                    {
+                        branch.range = listRange[key];
+                        branch.range.rangeType = range.type.lo;
+                        branch.range.lb = 0;
+                        branch.range.ub = 0;
+                        branch.range.lB.Add(branch);
+
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        listRange[key] = new range();
+                        branch.range = listRange[key];
+                        branch.range.rangeType = range.type.lo;
+                        branch.range.lb = 0;
+                        branch.range.ub = 0;
+                        branch.range.lB.Add(branch);
+                        var adjuster = myControlBox.addRangeSetter(key, (th,sw, lb, ub) =>
+                        {
+                            if (listRange[key].firstPathDone)
+                            {
+                                th.setMeasured(listRange[key].lastMin,listRange[key].lastMax);
+                            }
+                            foreach (var _branch in listRange[key].lB)
+                            {
+                                if (sw == 0)
+                                {
+                                    _branch.range.rangeType = range.type.lo;
+                                    _branch.range.lb = lb;
+                                    _branch.range.ub = 0d;
+                                }
+                                if (sw == 2)
+                                {
+                                    _branch.range.rangeType = range.type.ra;
+                                    _branch.range.lb = lb;
+                                    _branch.range.ub = ub;
+                                }
+                            }
+                        }
+                         );
+                    }
+
+   
                 }else if(crvTypes[i].StartsWith("open"))
                 {
                     branch.branchType = branch.type.open;
                     var key = crvTypes[i].Replace("open", "");
+                    if (key == "") key = "&%";
                     branch.sliceKey = key;
                     try
                     {
@@ -658,7 +719,48 @@ namespace mikity.ghComponents
                         branch.slice.sliceType = slice.type.fr;
                         branch.slice.lB.Add(branch);
                     }
-                }else if(crvTypes[i].StartsWith("fix"))
+                    try
+                    {
+                        branch.range = listRangeOpen[key];
+                        branch.range.rangeType = range.type.lo;
+                        branch.range.lb = 0;
+                        branch.range.ub = 0;
+                        branch.range.lB.Add(branch);
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        listRangeOpen[key] = new range();
+                        branch.range = listRangeOpen[key];
+                        branch.range.rangeType = range.type.lo;
+                        branch.range.lb = 0;
+                        branch.range.ub = 0;
+                        branch.range.lB.Add(branch);
+                        var adjuster = myControlBox.addRangeSetter(key, (th,sw, lb, ub) =>
+                        {
+                            if (listRangeOpen[key].firstPathDone)
+                            {
+                                th.setMeasured(listRangeOpen[key].lastMin,listRangeOpen[key].lastMax);
+                            }
+                            foreach (var _branch in listRangeOpen[key].lB)
+                            {
+                                if (sw == 0)
+                                {
+                                    _branch.range.rangeType = range.type.lo;
+                                    _branch.range.lb = lb;
+                                    _branch.range.ub = 0d;
+                                }
+                                if (sw == 2)
+                                {
+                                    _branch.range.rangeType = range.type.ra;
+                                    _branch.range.lb = lb;
+                                    _branch.range.ub = ub;
+                                }
+                            }
+                        }
+                            );
+                    }
+                }
+                else if (crvTypes[i].StartsWith("fix"))
                 {
                     branch.branchType = branch.type.fix;
                     var key = crvTypes[i].Replace("fix", "");

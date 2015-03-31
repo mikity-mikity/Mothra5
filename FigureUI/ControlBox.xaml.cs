@@ -20,6 +20,7 @@ namespace Mothra.UI
     {
         public System.Collections.Generic.List<Mothra.UI.sliderRot> listSlider;
         public System.Collections.Generic.List<Mothra.UI.sliderVert> listSlider2;
+        public List<Mothra.UI.rangeSetter> listAdjusters;
         public newRadioButton[] radioButtonList;
         public Func<double, double> coeff = null;
         public double force = 0.02;
@@ -55,6 +56,7 @@ namespace Mothra.UI
             InitializeComponent();
             listSlider = new System.Collections.Generic.List<Mothra.UI.sliderRot>();
             listSlider2 = new System.Collections.Generic.List<Mothra.UI.sliderVert>();
+            listAdjusters = new List<rangeSetter>();
             this.Hide();
 
         }
@@ -62,8 +64,10 @@ namespace Mothra.UI
         {
             this.stackPanel1.Children.Clear();
             this.stackPanel2.Children.Clear();
+            this.stackPanel3.Children.Clear();
             listSlider.Clear();
             listSlider2.Clear();
+            listAdjusters.Clear();
         }
         /*public Mothra.UI.newButton addButton(string name,Action func)
         {
@@ -72,6 +76,14 @@ namespace Mothra.UI
             b.Text = name;
             return b;
         }*/
+        public Mothra.UI.rangeSetter addRangeSetter(string key, Action<Mothra.UI.rangeSetter, int, double, double> func)
+        {
+            Mothra.UI.rangeSetter s = new rangeSetter(key);
+            s.setFunc(func);
+            listAdjusters.Add(s);
+            this.stackPanel3.Children.Add(s);
+            return s;
+        }
         public Mothra.UI.sliderRot addSliderRot(int min, int step, int max, int val, Action<bool> fixChanged)
         {
             Mothra.UI.sliderRot s = addSliderRot(min, step, max, val, "", fixChanged);

@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="Mothra.UI.rangeSetter"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <StackPanel Height="auto">
+        <DockPanel Height="auto" HorizontalAlignment="Stretch" Margin="0" Name="dockPanel1" VerticalAlignment="Top" Width="Auto">
+            <Label DockPanel.Dock="Left" Content="key:lb" VerticalAlignment="Center" Name="Label1"></Label>
+            <CheckBox DockPanel.Dock="Left" Name="lbEnabel" VerticalAlignment="Center" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" />
+            <TextBox Width="60" Name="lbValue"></TextBox>
+            <Label Name="measured1">N/A</Label>
+            <Label>if unchecked, set to 0</Label>
+        </DockPanel>
+        <DockPanel Height="auto" HorizontalAlignment="Stretch" Margin="0" Name="dockPanel2" VerticalAlignment="Bottom" Width="Auto">
+            <Label DockPanel.Dock="Left" Content="key:ub" VerticalAlignment="Center" Name="Label2"></Label>
+            <CheckBox DockPanel.Dock="Left" Name="ubEnabel" VerticalAlignment="Center" Unchecked="CheckBox_Unchecked_1" Checked="CheckBox_Checked_1" />
+            <TextBox Width="60" Name="ubValue"></TextBox>
+            <Label Name="measured2">N/A</Label>
+            <Label>if unchecked, set to +infinite</Label>
+        </DockPanel>
+    </StackPanel>
+</UserControl>

@@ -51,6 +51,8 @@
             </StackPanel>
             <StackPanel Height="Auto" Name="stackPanel2" Width="400" HorizontalAlignment="Stretch">
             </StackPanel>
+            <StackPanel Height="Auto" Name="stackPanel3" Width="400" HorizontalAlignment="Stretch">
+            </StackPanel>
         </StackPanel>
 
     </DockPanel>
