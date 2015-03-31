@@ -1134,8 +1134,9 @@ namespace mikity.ghComponents
                             }
                             else
                             {
-                                branch.tuples[i].H[0, 0] = branch.tuples[i].left.valD + branch.tuples[i].right.valD;
-                                //branch.tuples[i].H[0, 0] = xx[branch.N + i + branch.varOffset];
+                                //afterwards, check why these two values do not match.
+                                //branch.tuples[i].H[0, 0] = branch.tuples[i].left.valD + branch.tuples[i].right.valD;
+                                branch.tuples[i].H[0, 0] = xx[branch.N + i + branch.varOffset];
                             }
                         }
                     }
