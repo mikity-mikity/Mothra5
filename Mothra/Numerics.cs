@@ -533,8 +533,8 @@ namespace mikity.ghComponents
             {
                 leaf.varOffset = numvar;
                 leaf.conOffset = numcon;
-                numvar += (leaf.nU * leaf.nV) + leaf.r * 3;  //z,H11,H22,H12
-                numcon += leaf.r * 3;// H11,H22,H12
+                numvar += (leaf.nU * leaf.nV) + leaf.r * 4;  //z,H11,H22,H12 mean curvature
+                numcon += leaf.r * 4;// H11,H22,H12
                 if (obj) numvar += leaf.r * 3; //z,target_z, z-_z
                 if (obj) numcon += leaf.r * 2; //z, z-target_z
             }
@@ -589,46 +589,47 @@ namespace mikity.ghComponents
                     bux[i + leaf.varOffset] = infinity;
                 }
                 //H11,H22,H12
-                //if (leaf.leafType == leaf.type.convex)
+                for (int i = 0; i < leaf.r; i++)
                 {
-                    for (int i = 0; i < leaf.r; i++)
-                    {
-                        int n = i * 3 + (leaf.nU * leaf.nV);
-                        bkx[n + leaf.varOffset] = mosek.boundkey.fr;
-                        blx[n + leaf.varOffset] = -infinity;
-                        bux[n + leaf.varOffset] = infinity;
-                        bkx[n + 1 + leaf.varOffset] = mosek.boundkey.fr;
-                        blx[n + 1 + leaf.varOffset] = -infinity;
-                        bux[n + 1 + leaf.varOffset] = infinity;
-                        bkx[n + 2 + leaf.varOffset] = mosek.boundkey.fr;
-                        blx[n + 2 + leaf.varOffset] = -infinity;
-                        bux[n + 2 + leaf.varOffset] = infinity;
-                    }
+                    int n = i * 3 + (leaf.nU * leaf.nV);
+                    bkx[n + leaf.varOffset] = mosek.boundkey.fr;
+                    blx[n + leaf.varOffset] = -infinity;
+                    bux[n + leaf.varOffset] = infinity;
+                    bkx[n + 1 + leaf.varOffset] = mosek.boundkey.fr;
+                    blx[n + 1 + leaf.varOffset] = -infinity;
+                    bux[n + 1 + leaf.varOffset] = infinity;
+                    bkx[n + 2 + leaf.varOffset] = mosek.boundkey.fr;
+                    blx[n + 2 + leaf.varOffset] = -infinity;
+                    bux[n + 2 + leaf.varOffset] = infinity;
                 }
+                //later mean curvature will be added here
+                //
+                
+                ////////////////
                 //target z
                 if (obj)
                 {
                     //z
                     for (int i = 0; i < leaf.r; i++)
                     {
-                        bkx[i + (leaf.nU * leaf.nV) + 3 * leaf.r + leaf.varOffset] = mosek.boundkey.fr;
-                        blx[i + (leaf.nU * leaf.nV) + 3 * leaf.r + leaf.varOffset] = 0;
-                        bux[i + (leaf.nU * leaf.nV) + 3 * leaf.r + leaf.varOffset] = 0;
+                        bkx[i + (leaf.nU * leaf.nV) + 4 * leaf.r + leaf.varOffset] = mosek.boundkey.fr;
+                        blx[i + (leaf.nU * leaf.nV) + 4 * leaf.r + leaf.varOffset] = 0;
+                        bux[i + (leaf.nU * leaf.nV) + 4 * leaf.r + leaf.varOffset] = 0;
                     }
                     //target_z
                     for (int i = 0; i < leaf.r; i++)
                     {
-                        bkx[i + (leaf.nU * leaf.nV) + 4 * leaf.r + leaf.varOffset] = mosek.boundkey.fx;
+                        bkx[i + (leaf.nU * leaf.nV) + 5 * leaf.r + leaf.varOffset] = mosek.boundkey.fx;
                         //reference multiquadric surface
-                        blx[i + (leaf.nU * leaf.nV) + 4 * leaf.r + leaf.varOffset] = globalFunc(leaf.tuples[i].x, leaf.tuples[i].y);
-                        bux[i + (leaf.nU * leaf.nV) + 4 * leaf.r + leaf.varOffset] = globalFunc(leaf.tuples[i].x, leaf.tuples[i].y);
+                        blx[i + (leaf.nU * leaf.nV) + 5 * leaf.r + leaf.varOffset] = globalFunc(leaf.tuples[i].x, leaf.tuples[i].y);
+                        bux[i + (leaf.nU * leaf.nV) + 5 * leaf.r + leaf.varOffset] = globalFunc(leaf.tuples[i].x, leaf.tuples[i].y);
                     }
                     //z-target_z
                     for (int i = 0; i < leaf.r; i++)
                     {
-                        bkx[i + (leaf.nU * leaf.nV) + 5 * leaf.r + leaf.varOffset] = mosek.boundkey.fr;
-                        blx[i + (leaf.nU * leaf.nV) + 5 * leaf.r + leaf.varOffset] = 0;
-                        bux[i + (leaf.nU * leaf.nV) + 5 * leaf.r + leaf.varOffset] = 0;
+                        bkx[i + (leaf.nU * leaf.nV) + 6 * leaf.r + leaf.varOffset] = mosek.boundkey.fr;
+                        blx[i + (leaf.nU * leaf.nV) + 6 * leaf.r + leaf.varOffset] = 0;
+                        bux[i + (leaf.nU * leaf.nV) + 6 * leaf.r + leaf.varOffset] = 0;
                     }
                 }
             }
@@ -765,9 +766,10 @@ namespace mikity.ghComponents
                 bkx[numvar - 1] = mosek.boundkey.fx;
                 blx[numvar - 1] = allow;
                 bux[numvar - 1] = allow;
-                /*bkx[numvar - 1] = mosek.boundkey.fr;
-                blx[numvar - 1] = -infinity;
-                bux[numvar - 1] = infinity;*/
+                
+                //bkx[numvar - 1] = mosek.boundkey.fr;
+                //blx[numvar - 1] = -infinity;
+                //bux[numvar - 1] = infinity;
             }
 
             // Make mosek environment.
@@ -859,7 +861,11 @@ namespace mikity.ghComponents
                                 task.putaij(N12 + leaf.conOffset, leaf.tuples[i].internalIndex[k] + leaf.varOffset, -val);
                             }
                         }
-                        
+                        // mean curvature will be added here
+                        //
+                        //
+
+
                         //if (leaf.leafType == leaf.type.convex)
                         for (int i = 0; i < leaf.r; i++)
                         {
@@ -888,17 +894,17 @@ namespace mikity.ghComponents
                                 leaf.tuples[i].d0.CopyTo(grad00, 0);
                                 for (int k = 0; k < leaf.tuples[i].nNode; k++)
                                 {
-                                    task.putaij(leaf.conOffset + leaf.r * 3 + i, leaf.varOffset + leaf.tuples[i].internalIndex[k], grad00[k]);
+                                    task.putaij(leaf.conOffset + leaf.r * 4 + i, leaf.varOffset + leaf.tuples[i].internalIndex[k], grad00[k]);
                                 }
-                                task.putaij(leaf.conOffset + leaf.r * 3 + i, leaf.varOffset + leaf.nU*leaf.nV+leaf.r*3+i,-1);
-                                task.putconbound(leaf.conOffset + leaf.r * 3 + i, mosek.boundkey.fx, 0, 0);
+                                task.putaij(leaf.conOffset + leaf.r * 4 + i, leaf.varOffset + leaf.nU*leaf.nV+leaf.r*4+i,-1);
+                                task.putconbound(leaf.conOffset + leaf.r * 4 + i, mosek.boundkey.fx, 0, 0);
                             }
                             for (int i = 0; i < leaf.tuples.Count(); i++)
                             {
-                                task.putaij(leaf.conOffset + leaf.r * 4 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 3 + i, 1);
-                                task.putaij(leaf.conOffset + leaf.r * 4 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 4 + i, -1);
-                                task.putaij(leaf.conOffset + leaf.r * 4 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 5 + i, -1);
-                                task.putconbound(leaf.conOffset + leaf.r * 4 + i, mosek.boundkey.fx, 0, 0);
+                                task.putaij(leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 4 + i, 1);
+                                task.putaij(leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 5 + i, -1);
+                                task.putaij(leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 6 + i, -1);
+                                task.putconbound(leaf.conOffset + leaf.r * 5 + i, mosek.boundkey.fx, 0, 0);
                             }
                         }
                     }
@@ -911,7 +917,7 @@ namespace mikity.ghComponents
                         {
                             for (int i = 0; i < leaf.r; i++)
                             {
-                                dsub.Add(leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 5 + i);
+                                dsub.Add(leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 6 + i);
                             }
                         }
                         task.appendcone(mosek.conetype.quad, 0.0, dsub.ToArray());
@@ -956,11 +962,11 @@ namespace mikity.ghComponents
                             defineKinkAngle(branch,branch.target, task, branch.conOffset + branch.N, branch.varOffset + branch.N);
                         }
                     }
+                    //task.putcj(numvar - 1, 1);
                     task.putintparam(mosek.iparam.intpnt_max_iterations, 200000000);//20000000
                     task.putintparam(mosek.iparam.intpnt_solve_form, mosek.solveform.dual);
                     task.putobjsense(mosek.objsense.minimize);
                     //task.writedata("c:/out/mosek_task_dump.opf");
-                    
 
 
                     task.optimize();
