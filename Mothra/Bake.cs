@@ -85,7 +85,7 @@ namespace mikity.ghComponents
                             }
                         }
                     }
-                    if (branch.branchType == branch.type.kink || branch.branchType == branch.type.reinforce)
+                    if (branch.branchType == branch.type.kink || branch.branchType == branch.type.reinforce||branch.branchType==branch.type.open)
                     {
                         if (branch.tuples != null)
                         {
