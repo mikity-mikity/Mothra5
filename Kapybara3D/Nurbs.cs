@@ -17,7 +17,7 @@ namespace Minilla3D.Elements
             public int nNode;
             public int elemDim;
             public double area;
-            int N;   //number of merge function, set to 4
+            //int N;   //number of merge function, set to 4
 
             public double ou, ov, u, v;   //scaled coordinate, coordinate on Rhino, local coordinate on an element
             public double[] lo;
@@ -169,10 +169,10 @@ namespace Minilla3D.Elements
                 }
             }
 
-            public tuple(int _N, double _ou, double _ov, double _u, double _v, int _index, double _loU, double _loV, double _area)
+            public tuple(/*int _N, */double _ou, double _ov, double _u, double _v, int _index, double _loU, double _loV, double _area)
             {
 
-                N = _N;
+                //N = _N;
                 ou = _ou;
                 ov = _ov;
                 u = _u;

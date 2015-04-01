@@ -225,7 +225,8 @@ namespace mikity.ghComponents
         }
         public class tuple_ex:Minilla3D.Elements.nurbsElement.tuple
         {
-            public tuple_ex(int _N, double _ou, double _ov, double _u, double _v, int _index, double _loU, double _loV, double _area):base(_N, _ou, _ov, _u,_v,  _index, _loU, _loV, _area)
+            public tuple_ex(/*int _N, */double _ou, double _ov, double _u, double _v, int _index, double _loU, double _loV, double _area)
+                : base(/*_N,*/ _ou, _ov, _u, _v, _index, _loU, _loV, _area)
             {}
             
             public void init(NurbsSurface S,double scaleU,double scaleV)
@@ -356,9 +357,10 @@ namespace mikity.ghComponents
         bool ready = false;
         void computeF()
         {
+            //int globalNN = 3; //dim-1  ,i.e., order-2 for Airy stress function dim+3 for equilibrium problem
             foreach (var leaf in listLeaf)
             {
-                leaf.NN = 4;
+                leaf.NN = leaf.uDdim+leaf.uDdim-2;
                 double area = 1d / ((double)leaf.NN) / ((double)leaf.NN);
                 //setup tuples
                 //internal tuples
@@ -378,7 +380,7 @@ namespace mikity.ghComponents
                         //local coordinates
                         double localU = centerU - uNum;
                         double localV = centerV - vNum;
-                        leaf.tuples[num] = new tuple_ex(4, centerU, centerV, centerU * leaf.scaleU + leaf.originU, centerV * leaf.scaleV + leaf.originV, index, localU, localV, area);
+                        leaf.tuples[num] = new tuple_ex(centerU, centerV, centerU * leaf.scaleU + leaf.originU, centerV * leaf.scaleV + leaf.originV, index, localU, localV, area);
                         leaf.tuples[num].init(leaf.srf, leaf.scaleU, leaf.scaleV);                            
                     }
                 }
@@ -398,7 +400,7 @@ namespace mikity.ghComponents
                     //local coordinates
                     double localU = centerU - uNum;
                     double localV = centerV - vNum;
-                    leaf.edgeTuples[num] = new tuple_ex(4, centerU, centerV, centerU * leaf.scaleU + leaf.originU, centerV * leaf.scaleV + leaf.originV, index, localU, localV, area);
+                    leaf.edgeTuples[num] = new tuple_ex(centerU, centerV, centerU * leaf.scaleU + leaf.originU, centerV * leaf.scaleV + leaf.originV, index, localU, localV, area);
                     leaf.edgeTuples[num].init(leaf.srf, leaf.scaleU, leaf.scaleV);
                     leaf.edgeTuples[num].dcdt = new double[2] {1,0};
                 }
@@ -416,7 +418,7 @@ namespace mikity.ghComponents
                     //local coordinates
                     double localU = centerU - uNum;
                     double localV = centerV - vNum;
-                    leaf.edgeTuples[num] = new tuple_ex(4, centerU, centerV, centerU * leaf.scaleU + leaf.originU, centerV * leaf.scaleV + leaf.originV, index, localU, localV, area);
+                    leaf.edgeTuples[num] = new tuple_ex(centerU, centerV, centerU * leaf.scaleU + leaf.originU, centerV * leaf.scaleV + leaf.originV, index, localU, localV, area);
                     leaf.edgeTuples[num].init(leaf.srf, leaf.scaleU, leaf.scaleV);
                     leaf.edgeTuples[num].dcdt = new double[2] { 0, 1 };
                 }
@@ -434,7 +436,7 @@ namespace mikity.ghComponents
                     //local coordinates
                     double localU = centerU - uNum;
                     double localV = centerV - vNum;
-                    leaf.edgeTuples[num] = new tuple_ex(4, centerU, centerV, centerU * leaf.scaleU + leaf.originU, centerV * leaf.scaleV + leaf.originV, index, localU, localV, area);
+                    leaf.edgeTuples[num] = new tuple_ex(centerU, centerV, centerU * leaf.scaleU + leaf.originU, centerV * leaf.scaleV + leaf.originV, index, localU, localV, area);
                     leaf.edgeTuples[num].init(leaf.srf, leaf.scaleU, leaf.scaleV);
                     leaf.edgeTuples[num].dcdt = new double[2] { -1, 0 };
                 }
@@ -452,7 +454,7 @@ namespace mikity.ghComponents
                     //local coordinates
                     double localU = centerU - uNum;
                     double localV = centerV - vNum;
-                    leaf.edgeTuples[num] = new tuple_ex(4, centerU, centerV, centerU * leaf.scaleU + leaf.originU, centerV * leaf.scaleV + leaf.originV, index, localU, localV, area);
+                    leaf.edgeTuples[num] = new tuple_ex(centerU, centerV, centerU * leaf.scaleU + leaf.originU, centerV * leaf.scaleV + leaf.originV, index, localU, localV, area);
                     leaf.edgeTuples[num].init(leaf.srf, leaf.scaleU, leaf.scaleV);
                     leaf.edgeTuples[num].dcdt = new double[2] { 0, -1 };
                 }
@@ -478,7 +480,7 @@ namespace mikity.ghComponents
             }
             foreach (var branch in listBranch)
             {
-                branch.NN = 4;
+                branch.NN = branch.dDim+branch.dDim-2;
                 createNurbsElements(branch);
                 double[,] x;
                 x = new double[branch.N, 3];
