@@ -41,18 +41,11 @@ namespace mikity.ghComponents
                 //airyCrv.Transform(zDown_airy);
                 //Guid id = doc.Objects.AddCurve(airyCrv, a2);
                 //obj_ids.Add(id);
-                if (branch.branchType == branch.type.kink || branch.branchType == branch.type.reinforce)
+                if (branch.branchType == branch.type.kink || branch.branchType == branch.type.reinforce||branch.branchType == branch.type.open)
                 {
                     var crv = branch.shellCrv.Duplicate() as Rhino.Geometry.NurbsCurve;
                     crv.Transform(zDown_eq);
                     Guid id = doc.Objects.AddCurve(crv, a7);
-                    obj_ids.Add(id);
-                }
-                if (branch.branchType == branch.type.open)
-                {
-                    var crv = branch.shellCrv.Duplicate() as Rhino.Geometry.NurbsCurve;
-                    crv.Transform(zDown_eq);
-                    Guid id = doc.Objects.AddCurve(crv, a6);
                     obj_ids.Add(id);
                 }
             }
