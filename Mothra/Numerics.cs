@@ -456,7 +456,7 @@ namespace mikity.ghComponents
                         {
                             for (int k = 0; k < 3; k++)
                             {
-                                if (tup.SPK[0, 0] > 0)
+                                //if (tup.SPK[0, 0] > 0)
                                 {
                                     var val = tup.B[0, 0, i * 3 + k, j * 3 + k] * tup.SPK[0, 0] * tup.refDv * tup.area;
                                     for (int l = 0; l < 1; l++)

@@ -357,10 +357,10 @@ namespace mikity.ghComponents
         bool ready = false;
         void computeF()
         {
-            //int globalNN = 3; //dim-1  ,i.e., order-2 for Airy stress function dim+3 for equilibrium problem
+            int globalNN = 10;
             foreach (var leaf in listLeaf)
             {
-                leaf.NN = leaf.uDdim+leaf.uDdim-2;
+                leaf.NN = globalNN*(leaf.uDdim)-2;
                 double area = 1d / ((double)leaf.NN) / ((double)leaf.NN);
                 //setup tuples
                 //internal tuples
@@ -480,7 +480,7 @@ namespace mikity.ghComponents
             }
             foreach (var branch in listBranch)
             {
-                branch.NN = branch.dDim+branch.dDim-2;
+                branch.NN = globalNN*(branch.dDim)-2;
                 createNurbsElements(branch);
                 double[,] x;
                 x = new double[branch.N, 3];

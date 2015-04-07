@@ -157,6 +157,12 @@ namespace mikity.ghComponents
                                     line.Transform(zDown);
                                     args.Display.DrawLine(line, System.Drawing.Color.Red, 2);
                                 }
+                                else
+                                {
+                                    var line = new Rhino.Geometry.Line(new Rhino.Geometry.Point3d(tup.x, tup.y, tup.z), new Rhino.Geometry.Point3d(tup.x, tup.y, tup.z + D));
+                                    line.Transform(zDown);
+                                    args.Display.DrawLine(line, System.Drawing.Color.Blue, 2);
+                                }
                             }
                         }
                     }
