@@ -357,7 +357,7 @@ namespace mikity.ghComponents
         bool ready = false;
         void computeF()
         {
-            int globalNN = 10;
+            int globalNN = 2;
             foreach (var leaf in listLeaf)
             {
                 leaf.NN = globalNN*(leaf.uDdim)-2;
