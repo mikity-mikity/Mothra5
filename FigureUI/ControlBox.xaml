@@ -9,8 +9,8 @@
     <DockPanel Height="Auto" HorizontalAlignment="Stretch" Margin="12" Name="dockPanel1" VerticalAlignment="Stretch" Width="Auto">
         <StackPanel DockPanel.Dock="Top">
             <WrapPanel Height="Auto" Name="wrapPanel1" Width="Auto" >
-                <mm:newButton x:Name="Compute" Text="Compute Airy stress function"></mm:newButton>
-                <mm:newButton x:Name="Compute2" Text="Compute an equlibriated shape"></mm:newButton>
+                <mm:newButton x:Name="Compute" Text="Compute an Airy stress function"></mm:newButton>
+                <mm:newButton x:Name="Compute2" Text="Compute an equlibrium shape"></mm:newButton>
             </WrapPanel>
             <WrapPanel>
                 <Label>allowable torelance</Label>
