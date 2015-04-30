@@ -543,6 +543,7 @@ namespace mikity.ghComponents
                 {
                     var P = branch.shellCrv.Points[i].Location;
                     branch.shellCrv.Points.SetPoint(i, new Point3d(exSol[branch.globalIndex[i] * 3 + 0, 0], exSol[branch.globalIndex[i] * 3 + 1, 0], exSol[branch.globalIndex[i] * 3 + 2, 0]));
+                    //if you don't want to allow movements of x and y coordinates, use the following instead of the above. 
                     //branch.shellCrv.Points.SetPoint(i, new Point3d(P.X, P.Y, exSol[branch.globalIndex[i] * 3 + 2, 0]));
                 }
             }
@@ -555,6 +556,7 @@ namespace mikity.ghComponents
                     {
                         var P = leaf.shellSrf.Points.GetControlPoint(i, j).Location;
                         leaf.shellSrf.Points.SetControlPoint(i, j, new ControlPoint(exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 0, 0], exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 1, 0], exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 2, 0]));
+                        //if you don't want to allow movements of x and y coordinates, use the following instead of the above. 
                         //leaf.shellSrf.Points.SetControlPoint(i, j, new ControlPoint(P.X, P.Y, exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 2, 0]));
                     }
                 }
