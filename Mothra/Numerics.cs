@@ -496,7 +496,7 @@ namespace mikity.ghComponents
                     if (norm > max2) max2 = norm;
                 }
             }
-            System.Windows.Forms.MessageBox.Show(max1.ToString() + ".-." + max2.ToString());
+            //System.Windows.Forms.MessageBox.Show(max1.ToString() + ".-." + max2.ToString());
             var newMat = (shift.T.Multiply(mat) as SparseDoubleArray).Multiply(shift) as SparseDoubleArray;
             var newxx = shift.T.Multiply(xx) as SparseDoubleArray;
             var newF = shift.T.Multiply(F) as SparseDoubleArray;
