@@ -930,6 +930,10 @@ namespace mikity.ghComponents
                             {
                                 node.nodeType = node.type.fx;
                             }
+                            /*if (i == 0 || i == branch.crv.Points.Count - 1)
+                            {
+                                node.nodeType = node.type.fx;
+                            }*/
                             branch.globalIndex[i] = listNode.IndexOf(node);
                             break;
                         }

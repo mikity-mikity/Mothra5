@@ -12,27 +12,28 @@ namespace mikity.ghComponents
         {
             Rhino.Geometry.Transform zDown_airy = Rhino.Geometry.Transform.Translation(0, 0, 2d);
             Rhino.DocObjects.ObjectAttributes a2 = att.Duplicate();
-            a2.LayerIndex = 2;
+            //a2.LayerIndex = 2;
             Rhino.DocObjects.ObjectAttributes a3 = att.Duplicate();
-            a3.LayerIndex = 3;
+            //a3.LayerIndex = 3;
             Rhino.DocObjects.ObjectAttributes a4 = att.Duplicate();
-            a4.LayerIndex = 4;
+            //a4.LayerIndex = 4;
             Rhino.DocObjects.ObjectAttributes a5 = att.Duplicate();
-            a5.LayerIndex = 5;
+            //a5.LayerIndex = 5;
             Rhino.DocObjects.ObjectAttributes a6 = att.Duplicate();
-            a6.LayerIndex = 6;
+            //a6.LayerIndex = 6;
             Rhino.DocObjects.ObjectAttributes a7 = att.Duplicate();
-            a7.LayerIndex = 7;
+            //a7.LayerIndex = 7;
             foreach (var leaf in listLeaf)
             {
-                var airySrf=leaf.airySrf.Duplicate() as Rhino.Geometry.NurbsSurface;
+                /*var airySrf=leaf.airySrf.Duplicate() as Rhino.Geometry.NurbsSurface;
                 airySrf.Transform(zScale);
                 airySrf.Transform(zDown_airy);
                 Guid id = doc.Objects.AddSurface(airySrf, a2);
                 obj_ids.Add(id);
+                */
                 var srf = leaf.shellSrf.Duplicate() as Rhino.Geometry.NurbsSurface;
-                srf.Transform(zDown_eq);
-                id = doc.Objects.AddSurface(srf, a3);
+                //srf.Transform(zDown_eq);
+                Guid id = doc.Objects.AddSurface(srf, a3);
                 obj_ids.Add(id);
             }
             foreach (var branch in listBranch)
@@ -44,12 +45,12 @@ namespace mikity.ghComponents
                 if (branch.branchType == branch.type.kink || branch.branchType == branch.type.reinforce||branch.branchType == branch.type.open)
                 {
                     var crv = branch.shellCrv.Duplicate() as Rhino.Geometry.NurbsCurve;
-                    crv.Transform(zDown_eq);
+                  //  crv.Transform(zDown_eq);
                     Guid id = doc.Objects.AddCurve(crv, a7);
                     obj_ids.Add(id);
                 }
             }
-            if (crossMagenta != null)
+            /*if (crossMagenta != null)
             {
                 foreach (var line in crossMagenta)
                 {
@@ -97,7 +98,7 @@ namespace mikity.ghComponents
                     }
                     
                 }
-            }
+            }*/
         }
     }
 }

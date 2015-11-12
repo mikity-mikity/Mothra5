@@ -197,8 +197,6 @@
     <PostBuildEvent>Copy "$(TargetDir)PresentationFramework.Aero.dll" "$(TargetDir)merge\"
 Copy "$(TargetDir)Mothra4.dll" "$(TargetDir)merge\Mothra4.gha"
 Copy "$(TargetDir)Minilla3D.dll" "$(TargetDir)merge\"
-Copy "$(TargetDir)MyMath.dll" "$(TargetDir)merge\"
-Copy "$(TargetDir)Mesher.dll" "$(TargetDir)merge\"
 Copy "$(TargetDir)MothraUI.dll" "$(TargetDir)merge\"
 Copy "$(TargetDir)mosek*.*" "$(TargetDir)merge\"
 

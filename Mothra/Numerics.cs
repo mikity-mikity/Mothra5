@@ -375,7 +375,7 @@ namespace mikity.ghComponents
                 xx[k * 3 + 0, 0] = node.x;
                 xx[k * 3 + 1, 0] = node.y;
                 xx[k * 3 + 2, 0] = node.z;
-/*                if (node.nodeType == node.type.fx)
+                if (node.nodeType == node.type.fx)
                 {
                     for (int i = 0; i < node.shareB.Count; i++)
                     {
@@ -391,7 +391,7 @@ namespace mikity.ghComponents
                             xx[k * 3 + 2, 0] = node.z;
                         }
                     }
-                }*/
+                }
             }
             
             List<int> series=new List<int>();
@@ -420,7 +420,22 @@ namespace mikity.ghComponents
                 shift[i * 3 + 0, series[i] * 3 + 0] = 1;
                 shift[i * 3 + 1, series[i] * 3 + 1] = 1;
                 shift[i * 3 + 2, series[i] * 3 + 2] = 1;
-                F[i * 3 + 2, 0] = -force;//force
+                //F[i * 3 + 2, 0] = -force;//force
+            }
+            foreach (var leaf in _listLeaf)
+            {
+                foreach (var tup in leaf.tuples)
+                {
+                    var d0=tup.d0;
+                    for(int i = 0; i < tup.nNode; i++)
+                    {
+                        int k = 2;
+                        var val = d0[i] * tup.refDv * tup.area*force;
+                        //GGSystem.Windows.Forms.MessageBox.Show(tup.eigenValues[0].ToString() + "," + tup.eigenValues[1].ToString());
+                        double factor = Math.Abs(Math.Max(tup.eigenValues[0], tup.eigenValues[1]));
+                        F[leaf.globalIndex[tup.internalIndex[i]] * 3 + k,0] -= val * Math.Pow(factor, 1.6);
+                    }
+                }
             }
             foreach (var leaf in _listLeaf)
             {
@@ -439,7 +454,7 @@ namespace mikity.ghComponents
                                     {
                                         for (int m = 0; m < 2; m++)
                                         {
-                                            var val = tup.B[l, m, i * 3 + k, j * 3 + k] * tup.SPK[l, m] * tup.refDv * tup.area;
+                                            var val = tup.B[l, m, i * 3 + k, j * 3 + k] * tup.SPK[l, m] * tup.refDv * tup.area; //tup.area is just a weight of Gauss integration
                                             mat[leaf.globalIndex[tup.internalIndex[i]] * 3 + k, leaf.globalIndex[tup.internalIndex[j]] * 3 + k] += val;
                                         }
                                     }
