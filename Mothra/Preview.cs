@@ -82,7 +82,7 @@ namespace mikity.ghComponents
                 if (leaf.shellSrf != null)
                 {
                     var srf = leaf.shellSrf.Duplicate() as Rhino.Geometry.NurbsSurface;
-                    srf.Transform(zDown_eq);
+                    //srf.Transform(zDown_eq);
                     args.Display.DrawSurface(srf, System.Drawing.Color.Brown, 3);
                 }
             }
@@ -122,7 +122,7 @@ namespace mikity.ghComponents
                     {
 
                         var crv = branch.shellCrv.Duplicate() as Rhino.Geometry.NurbsCurve;
-                        crv.Transform(zDown_eq);
+                        //crv.Transform(zDown_eq);
                         args.Display.DrawCurve(crv, System.Drawing.Color.SeaGreen, 3);
                     }
                 }

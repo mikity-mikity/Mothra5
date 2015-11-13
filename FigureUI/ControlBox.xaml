@@ -45,6 +45,10 @@
                 <RadioButton x:Name="Radio3e" Checked="Radio3e_Checked" IsChecked="True" GroupName="force">0.02</RadioButton>
                 <RadioButton x:Name="Radio4e" Checked="Radio4e_Checked" GroupName="force">0.05</RadioButton>
                 <RadioButton x:Name="Radio5e" Checked="Radio5e_Checked" GroupName="force">0.1</RadioButton>
+                <RadioButton x:Name="Radio6e" Checked="Radio6e_Checked" GroupName="force">0.2</RadioButton>
+                <RadioButton x:Name="Radio7e" Checked="Radio7e_Checked" GroupName="force">0.5</RadioButton>
+                <RadioButton x:Name="Radio8e" Checked="Radio8e_Checked" GroupName="force">1</RadioButton>
+                <RadioButton x:Name="Radio9e" Checked="Radio9e_Checked" GroupName="force">2</RadioButton>
             </WrapPanel>
             <CheckBox x:Name="obj">objective function?</CheckBox>
             <StackPanel Height="Auto" Name="stackPanel1" Width="400" HorizontalAlignment="Stretch">

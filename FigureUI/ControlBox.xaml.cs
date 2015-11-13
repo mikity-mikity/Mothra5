@@ -207,6 +207,26 @@ namespace Mothra.UI
             force = 0.1;
 
         }
+        private void Radio6e_Checked(object sender, RoutedEventArgs e)
+        {
+            force = 0.2;
+
+        }
+        private void Radio7e_Checked(object sender, RoutedEventArgs e)
+        {
+            force = 0.5;
+
+        }
+        private void Radio8e_Checked(object sender, RoutedEventArgs e)
+        {
+            force = 1;
+
+        }
+        private void Radio9e_Checked(object sender, RoutedEventArgs e)
+        {
+            force = 2;
+
+        }
         private void Radio0a_Checked(object sender, RoutedEventArgs e)
         {
             allow = 25;
