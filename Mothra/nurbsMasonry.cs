@@ -360,7 +360,7 @@ namespace mikity.ghComponents
             int globalNN = 2;
             foreach (var leaf in listLeaf)
             {
-                leaf.NN = globalNN*(leaf.uDdim)-2;
+                leaf.NN = globalNN*(leaf.uDdim)-1;
                 double area = 1d / ((double)leaf.NN) / ((double)leaf.NN);
                 //setup tuples
                 //internal tuples
