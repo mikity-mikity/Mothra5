@@ -362,7 +362,7 @@ namespace mikity.ghComponents
             }
 
         }
-        public void mosek2(List<leaf> _listLeaf, List<branch> _listBranch, List<node> _listNode, double force)
+        public void mosek2(List<leaf> _listLeaf, List<branch> _listBranch, List<node> _listNode, double force,bool fix,double exp)
         {
             //variable settings
             ShoNS.Array.SparseDoubleArray mat = new SparseDoubleArray(_listNode.Count * 3, _listNode.Count * 3);
@@ -433,7 +433,7 @@ namespace mikity.ghComponents
                         var val = d0[i] * tup.refDv * tup.area*force;
                         //GGSystem.Windows.Forms.MessageBox.Show(tup.eigenValues[0].ToString() + "," + tup.eigenValues[1].ToString());
                         double factor = Math.Abs(Math.Max(tup.eigenValues[0], tup.eigenValues[1]));
-                        F[leaf.globalIndex[tup.internalIndex[i]] * 3 + k,0] -= val * Math.Pow(factor, 1.6);
+                        F[leaf.globalIndex[tup.internalIndex[i]] * 3 + k,0] -= val * Math.Pow(factor, exp);
                     }
                 }
             }
@@ -559,7 +559,14 @@ namespace mikity.ghComponents
                 for (int i = 0; i < branch.N; i++)
                 {
                     var P = branch.shellCrv.Points[i].Location;
-                    branch.shellCrv.Points.SetPoint(i, new Point3d(exSol[branch.globalIndex[i] * 3 + 0, 0], exSol[branch.globalIndex[i] * 3 + 1, 0], exSol[branch.globalIndex[i] * 3 + 2, 0]));
+                    if (fix)
+                    {
+                        branch.shellCrv.Points.SetPoint(i, new Point3d(P.X, P.Y, exSol[branch.globalIndex[i] * 3 + 2, 0]));
+                    }
+                    else
+                    {
+                        branch.shellCrv.Points.SetPoint(i, new Point3d(exSol[branch.globalIndex[i] * 3 + 0, 0], exSol[branch.globalIndex[i] * 3 + 1, 0], exSol[branch.globalIndex[i] * 3 + 2, 0]));
+                    }
                     //if you don't want to allow movements of x and y coordinates, use the following instead of the above. 
                     //branch.shellCrv.Points.SetPoint(i, new Point3d(P.X, P.Y, exSol[branch.globalIndex[i] * 3 + 2, 0]));
                 }
@@ -572,7 +579,14 @@ namespace mikity.ghComponents
                     for (int j = 0; j < leaf.nV; j++)
                     {
                         var P = leaf.shellSrf.Points.GetControlPoint(i, j).Location;
-                        leaf.shellSrf.Points.SetControlPoint(i, j, new ControlPoint(exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 0, 0], exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 1, 0], exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 2, 0]));
+                        if (fix)
+                        {
+                            leaf.shellSrf.Points.SetControlPoint(i, j, new ControlPoint(P.X, P.Y, exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 2, 0]));
+                        }
+                        else
+                        {
+                            leaf.shellSrf.Points.SetControlPoint(i, j, new ControlPoint(exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 0, 0], exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 1, 0], exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 2, 0]));
+                        }
                         //if you don't want to allow movements of x and y coordinates, use the following instead of the above. 
                         //leaf.shellSrf.Points.SetControlPoint(i, j, new ControlPoint(P.X, P.Y, exSol[leaf.globalIndex[i + j * leaf.nU] * 3 + 2, 0]));
                     }
@@ -580,7 +594,7 @@ namespace mikity.ghComponents
             }
             
         }
-        public void mosek1(List<leaf> _listLeaf, List<branch> _listBranch, Dictionary<string, slice> _listSlice,Dictionary<string,range>_listRange,Dictionary<string,range>_listRangeOpen,Dictionary<string,range> _listRangeLeaf, bool obj, double allow, bool obj2)
+        public void mosek1(List<leaf> _listLeaf, List<branch> _listBranch, Dictionary<string, slice> _listSlice,Dictionary<string,range>_listRange,Dictionary<string,range>_listRangeOpen,Dictionary<string,range> _listRangeLeaf, bool obj, double allow)
         {
             // Since the value infinity is never used, we define
             // 'infinity' symbolic purposes only

@@ -24,15 +24,16 @@ namespace Mothra.UI
         public newRadioButton[] radioButtonList;
         public Func<double, double> coeff = null;
         public double force = 0.02;
+        public double exp = 1.6;
         public double allow = 2000;
         public double zScale=1.0, sScale=1.0;
         private Action radio1 = null;
         private Action ref1 = null;
-        public bool objective
+        public bool fix_x_and_y
         {
             get
             {
-                return (bool)obj.IsChecked;
+                return (bool)fix.IsChecked;
             }
         }
         public void setFunctionToCompute(Action func)
@@ -225,6 +226,43 @@ namespace Mothra.UI
         private void Radio9e_Checked(object sender, RoutedEventArgs e)
         {
             force = 2;
+
+        }
+        private void Radio0f_Checked(object sender, RoutedEventArgs e)
+        {
+            exp = 0.000;
+        }
+        private void Radio1f_Checked(object sender, RoutedEventArgs e)
+        {
+            exp = 1.0;
+        }
+
+        private void Radio2f_Checked(object sender, RoutedEventArgs e)
+        {
+            exp = 1.2;
+
+        }
+
+        private void Radio3f_Checked(object sender, RoutedEventArgs e)
+        {
+            exp = 1.4;
+
+        }
+
+        private void Radio4f_Checked(object sender, RoutedEventArgs e)
+        {
+            exp = 1.6;
+
+        }
+
+        private void Radio5f_Checked(object sender, RoutedEventArgs e)
+        {
+            exp = 1.8;
+
+        }
+        private void Radio6f_Checked(object sender, RoutedEventArgs e)
+        {
+            exp = 2.0;
 
         }
         private void Radio0a_Checked(object sender, RoutedEventArgs e)

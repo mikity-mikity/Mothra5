@@ -175,14 +175,22 @@ namespace mikity.ghComponents
             public dl_ex[] tuples;
             public slice slice;
             public slice2 slice2;
+            public slice2 sliceL,sliceR;
             public range range;
             public string sliceKey;
+            public string sliceKeyL;
+            public string sliceKeyR;
             public int[] globalIndex;
             public enum type
             {
-                reinforce,open,kink,fix
+                reinforce, open, kink, fix
+            }
+            public enum endtype
+            {
+                none, fix
             }
             public type branchType;
+            public endtype endTypeL,endTypeR;
         }
         public class leaf
         {
@@ -351,7 +359,7 @@ namespace mikity.ghComponents
         void computeG()
         {
             if (!ready) { System.Windows.Forms.MessageBox.Show("not ready"); return; }
-            mosek2(listLeaf, listBranch, listNode,  myControlBox.force);
+            mosek2(listLeaf, listBranch, listNode,  myControlBox.force,myControlBox.fix_x_and_y, myControlBox.exp);
             this.ExpirePreview(true);
         }
         bool ready = false;
@@ -360,7 +368,7 @@ namespace mikity.ghComponents
             int globalNN = 2;
             foreach (var leaf in listLeaf)
             {
-                leaf.NN = globalNN*(leaf.uDdim)-1;
+                leaf.NN = globalNN * (leaf.uDdim) + 1;
                 double area = 1d / ((double)leaf.NN) / ((double)leaf.NN);
                 //setup tuples
                 //internal tuples
@@ -480,7 +488,7 @@ namespace mikity.ghComponents
             }
             foreach (var branch in listBranch)
             {
-                branch.NN = globalNN*(branch.dDim)-2;
+                branch.NN = globalNN*(branch.dDim)+1;
                 createNurbsElements(branch);
                 double[,] x;
                 x = new double[branch.N, 3];
@@ -547,9 +555,9 @@ namespace mikity.ghComponents
             }
             //call mosek
             if(listPnt.Count>0)
-                mosek1(listLeaf, listBranch, listSlice, listRange, listRangeOpen, listRangeLeaf,true, myControlBox.allow, myControlBox.objective);
+                mosek1(listLeaf, listBranch, listSlice, listRange, listRangeOpen, listRangeLeaf,true, myControlBox.allow);
             else
-                mosek1(listLeaf, listBranch, listSlice, listRange, listRangeOpen, listRangeLeaf,false, myControlBox.allow, myControlBox.objective);
+                mosek1(listLeaf, listBranch, listSlice, listRange, listRangeOpen, listRangeLeaf,false, myControlBox.allow);
             hodgeStar(listLeaf, listBranch, myControlBox.coeff, myControlBox.sScale);
             foreach (var adj in myControlBox.listAdjusters)
             {
@@ -710,7 +718,68 @@ namespace mikity.ghComponents
                 {
                     branch.branchType = branch.type.open;
                     var key = crvTypes[i].Replace("open", "");
-                    if (key == "") key = "open"; else key = "open:" + key;
+                    if (key == "") key = "open";
+                    else
+                    {
+                        var nums = key.Split(',','\n');
+                        key = "open:" + nums[0];
+                        branch.endTypeL = branch.endtype.none;
+                        branch.endTypeR = branch.endtype.none;
+                        if (nums.Length >= 2)
+                        {
+                            for(int j=1;j<nums.Length;j++)
+                            {
+                                if (nums[j] == "fixL")
+                                {
+                                    
+                                    branch.endTypeL = branch.endtype.fix;
+                                    branch.sliceKeyL = key+"fixL";
+                                    try
+                                    {
+                                        branch.sliceL = listSlice2[branch.sliceKeyL];
+                                    }
+                                    catch (KeyNotFoundException e)
+                                    {
+                                        listSlice2[branch.sliceKeyL] = new slice2();
+                                        branch.sliceL = listSlice2[branch.sliceKeyL];
+
+                                        var slider = myControlBox.addSliderVert(0, 1, 200, 100);
+                                        slider.Converter = (val) =>
+                                        {
+                                            double height = val / 10d - 10d;
+                                            branch.sliceL.height = height;
+                                            this.ExpirePreview(true);
+                                            return height;
+                                        };
+                                    }
+                                }
+                                if (nums[j] == "fixR")
+                                {
+                                    branch.endTypeR = branch.endtype.fix;
+                                    branch.sliceKeyR = key + "fixR";
+                                    try
+                                    {
+                                        branch.sliceR = listSlice2[branch.sliceKeyR];
+                                    }
+                                    catch (KeyNotFoundException e)
+                                    {
+                                        listSlice2[branch.sliceKeyR] = new slice2();
+                                        branch.sliceR = listSlice2[branch.sliceKeyR];
+
+                                        var slider = myControlBox.addSliderVert(0, 1, 200, 100);
+                                        slider.Converter = (val) =>
+                                        {
+                                            double height = val / 10d - 10d;
+                                            branch.sliceR.height = height;
+                                            this.ExpirePreview(true);
+                                            return height;
+                                        };
+                                    }
+                                }
+
+                            }
+                        }
+                    }
                     branch.sliceKey = key;
                     try
                     {
@@ -930,10 +999,14 @@ namespace mikity.ghComponents
                             {
                                 node.nodeType = node.type.fx;
                             }
-                            /*if (i == 0 || i == branch.crv.Points.Count - 1)
+                            if (i == 0 && branch.branchType == branch.type.open && branch.endTypeL == branch.endtype.fix)
                             {
                                 node.nodeType = node.type.fx;
-                            }*/
+                            }
+                            if (i == branch.crv.Points.Count - 1 && branch.branchType == branch.type.open && branch.endTypeR == branch.endtype.fix)
+                            {
+                                node.nodeType = node.type.fx;
+                            }
                             branch.globalIndex[i] = listNode.IndexOf(node);
                             break;
                         }
@@ -949,6 +1022,14 @@ namespace mikity.ghComponents
                         newNode.y = P.Y;
                         newNode.z = P.Z;
                         if (branch.branchType == branch.type.fix)
+                        {
+                            newNode.nodeType = node.type.fx;
+                        }
+                        if (i == 0 && branch.branchType == branch.type.open && branch.endTypeL == branch.endtype.fix)
+                        {
+                            newNode.nodeType = node.type.fx;
+                        }
+                        if (i == branch.crv.Points.Count - 1 && branch.branchType == branch.type.open && branch.endTypeR == branch.endtype.fix)
                         {
                             newNode.nodeType = node.type.fx;
                         }

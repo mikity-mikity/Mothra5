@@ -39,6 +39,7 @@
                 <RadioButton x:Name="Radio5d" Checked="Radio5d_Checked" GroupName="coeff">sqrt(1/gamma)</RadioButton>
             </WrapPanel>
             <WrapPanel>
+                <Label>scaling of vertical load</Label>
                 <RadioButton x:Name="Radio0e" Checked="Radio0e_Checked" GroupName="force">0</RadioButton>
                 <RadioButton x:Name="Radio1e" Checked="Radio1e_Checked" GroupName="force">0.005</RadioButton>
                 <RadioButton x:Name="Radio2e" Checked="Radio2e_Checked" GroupName="force">0.01</RadioButton>
@@ -50,7 +51,17 @@
                 <RadioButton x:Name="Radio8e" Checked="Radio8e_Checked" GroupName="force">1</RadioButton>
                 <RadioButton x:Name="Radio9e" Checked="Radio9e_Checked" GroupName="force">2</RadioButton>
             </WrapPanel>
-            <CheckBox x:Name="obj">objective function?</CheckBox>
+            <WrapPanel>
+                <Label>Exponent of the load distribution</Label>
+                <RadioButton x:Name="Radio0f" Checked="Radio0f_Checked" GroupName="exponent">0</RadioButton>
+                <RadioButton x:Name="Radio1f" Checked="Radio1f_Checked" GroupName="exponent">1.0</RadioButton>
+                <RadioButton x:Name="Radio2f" Checked="Radio2f_Checked" GroupName="exponent">1.2</RadioButton>
+                <RadioButton x:Name="Radio3f" Checked="Radio3f_Checked" GroupName="exponent">1.4</RadioButton>
+                <RadioButton x:Name="Radio4f" Checked="Radio4f_Checked" IsChecked="True" GroupName="exponent">1.6</RadioButton>
+                <RadioButton x:Name="Radio5f" Checked="Radio5f_Checked" GroupName="exponent">1.8</RadioButton>
+                <RadioButton x:Name="Radio6f" Checked="Radio6f_Checked" GroupName="exponent">2.0</RadioButton>
+            </WrapPanel>
+            <CheckBox x:Name="fix">fix x and y?</CheckBox>
             <StackPanel Height="Auto" Name="stackPanel1" Width="400" HorizontalAlignment="Stretch">
             </StackPanel>
             <StackPanel Height="Auto" Name="stackPanel2" Width="400" HorizontalAlignment="Stretch">

@@ -113,6 +113,26 @@ namespace mikity.ghComponents
                     args.Display.DrawLine(new Rhino.Geometry.Point3d(x + 1d, y + 1d, z), new Rhino.Geometry.Point3d(x + 1d, y - 1d, z), System.Drawing.Color.Blue);
                     args.Display.DrawLine(new Rhino.Geometry.Point3d(x + 1d, y + 1d, z), new Rhino.Geometry.Point3d(x - 1d, y + 1d, z), System.Drawing.Color.Blue);
                 }
+                if (branch.branchType == branch.type.open && branch.endTypeL == branch.endtype.fix)
+                {
+                    double x = branch.crv.Points[0].Location.X;
+                    double y = branch.crv.Points[0].Location.Y;
+                    double z = branch.sliceL.height;
+                    args.Display.DrawLine(new Rhino.Geometry.Point3d(x - 1d, y - 1d, z), new Rhino.Geometry.Point3d(x + 1d, y - 1d, z), System.Drawing.Color.Blue);
+                    args.Display.DrawLine(new Rhino.Geometry.Point3d(x - 1d, y - 1d, z), new Rhino.Geometry.Point3d(x - 1d, y + 1d, z), System.Drawing.Color.Blue);
+                    args.Display.DrawLine(new Rhino.Geometry.Point3d(x + 1d, y + 1d, z), new Rhino.Geometry.Point3d(x + 1d, y - 1d, z), System.Drawing.Color.Blue);
+                    args.Display.DrawLine(new Rhino.Geometry.Point3d(x + 1d, y + 1d, z), new Rhino.Geometry.Point3d(x - 1d, y + 1d, z), System.Drawing.Color.Blue);
+                }
+                if (branch.branchType == branch.type.open && branch.endTypeR == branch.endtype.fix)
+                {
+                    double x = branch.crv.Points[branch.crv.Points.Count-1].Location.X;
+                    double y = branch.crv.Points[branch.crv.Points.Count - 1].Location.Y;
+                    double z = branch.sliceR.height;
+                    args.Display.DrawLine(new Rhino.Geometry.Point3d(x - 1d, y - 1d, z), new Rhino.Geometry.Point3d(x + 1d, y - 1d, z), System.Drawing.Color.Blue);
+                    args.Display.DrawLine(new Rhino.Geometry.Point3d(x - 1d, y - 1d, z), new Rhino.Geometry.Point3d(x - 1d, y + 1d, z), System.Drawing.Color.Blue);
+                    args.Display.DrawLine(new Rhino.Geometry.Point3d(x + 1d, y + 1d, z), new Rhino.Geometry.Point3d(x + 1d, y - 1d, z), System.Drawing.Color.Blue);
+                    args.Display.DrawLine(new Rhino.Geometry.Point3d(x + 1d, y + 1d, z), new Rhino.Geometry.Point3d(x - 1d, y + 1d, z), System.Drawing.Color.Blue);
+                }
             }
             foreach (var branch in listBranch)
             {
