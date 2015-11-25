@@ -390,6 +390,26 @@ namespace mikity.ghComponents
                             xx[k * 3 + 1, 0] = node.y;
                             xx[k * 3 + 2, 0] = node.z;
                         }
+                        if (branch.endTypeL == branch.endtype.fix && node.numberB[i] == 0)
+                        {
+                            node.x = branch.crv.Points[index].Location.X;
+                            node.y = branch.crv.Points[index].Location.Y;
+                            node.z = branch.sliceL.height;
+                            xx[k * 3 + 0, 0] = node.x;
+                            xx[k * 3 + 1, 0] = node.y;
+                            xx[k * 3 + 2, 0] = node.z;
+
+                        }
+                        if (branch.endTypeL == branch.endtype.fix && node.numberB[i] == branch.crv.Points.Count-1)
+                        {
+                            node.x = branch.crv.Points[index].Location.X;
+                            node.y = branch.crv.Points[index].Location.Y;
+                            node.z = branch.sliceR.height;
+                            xx[k * 3 + 0, 0] = node.x;
+                            xx[k * 3 + 1, 0] = node.y;
+                            xx[k * 3 + 2, 0] = node.z;
+
+                        }
                     }
                 }
             }
@@ -1283,6 +1303,14 @@ namespace mikity.ghComponents
                     double g = branch.tuples[i].gij[0, 0];
                     double val = coeff(g);
                     branch.tuples[i].SPK[0, 0] = branch.tuples[i].H[0, 0] * val*sScale;
+                    if(branch.tuples[i].SPK[0,0]<0)
+                    {
+                        branch.tuples[i].SPK[0, 0] = 0d;
+                    }
+                    /*if (branch.branchType == branch.type.open)
+                    {
+                        branch.tuples[i].SPK[0, 0] = 0d;
+                    }*/
                     /*if (branch.tuples[i].SPK[0, 0] <= 0)
                     {
                         branch.tuples[i].SPK[0, 0] = 0.00000000000001d;//E-14
@@ -1304,10 +1332,10 @@ namespace mikity.ghComponents
                     leaf.tuples[j].computeEigenVectors();
                     var tup = leaf.tuples[j];
                     var det = tup.SPK[0, 0] * tup.SPK[1, 1] - tup.SPK[0, 1] * tup.SPK[1, 0];
-                    /*if (tup.eigenValues[0] < 0 || tup.eigenValues[1] < 0)
+                    if (tup.eigenValues[0] < 0 || tup.eigenValues[1] < 0)
                     {
-                        if (tup.eigenValues[0] < 0) tup.eigenValues[0] = 0.00000000000001d;//E-14
-                        if (tup.eigenValues[1] < 0) tup.eigenValues[1] = 0.00000000000001d;//E-14
+                        if (tup.eigenValues[0] < 0) tup.eigenValues[0] = 0;
+                        if (tup.eigenValues[1] < 0) tup.eigenValues[1] = 0;
                         //P
                         double A11 = tup.eigenVectorsB[0][0];
                         double A12 = tup.eigenVectorsB[0][1];
@@ -1331,7 +1359,7 @@ namespace mikity.ghComponents
                         tup.SPK[0, 1] = D11 * tup.Gij[0, 1] + D12 * tup.Gij[1, 1];
                         tup.SPK[1, 0] = D21 * tup.Gij[0, 0] + D22 * tup.Gij[1, 0];
                         tup.SPK[1, 1] = D21 * tup.Gij[1, 0] + D22 * tup.Gij[1, 1];
-                    }*/
+                    }
                     tup.SPK[0, 0] *= sScale;
                     tup.SPK[1, 0] *= sScale;
                     tup.SPK[0, 1] *= sScale;
