@@ -540,8 +540,8 @@ namespace mikity.ghComponents
             var D = newMat.GetSliceDeep(0, L1 * 3 - 1, L1 * 3, _listNode.Count * 3 - 1);
             var fx = newxx.GetSliceDeep(L1 * 3, _listNode.Count * 3 - 1, 0, 0);
             newF = newF.GetSliceDeep(0, L1 * 3 - 1, 0, 0);
-            //var solve = new SparseLU(T);
-            var solve = new SparseSVD(T);
+            var solve = new SparseLU(T);
+            /*var solve = new SparseSVD(T);
             var _U = solve.U;
             var _V = solve.V;
             var _D = solve.D;
@@ -553,11 +553,12 @@ namespace mikity.ghComponents
                 else _D[i, i] = 0d;
             }
             var inv = _V * _D * _U.T;
+            */
             var df = D * fx as SparseDoubleArray;
             var b = DoubleArray.From((-newF - df));
 
-            //var sol=solve.Solve(b);
-            var sol = inv * b;
+            var sol=solve.Solve(b);
+            //var sol = inv * b;
             //var sol = _V * _D * _U.T*b;
             var exSol = new SparseDoubleArray(sol.GetLength(0)+fx.GetLength(0),1);
             for (int i = 0; i < L1; i++)
@@ -612,7 +613,7 @@ namespace mikity.ghComponents
                     }
                 }
             }
-            
+
         }
         public void mosek1(List<leaf> _listLeaf, List<branch> _listBranch, Dictionary<string, slice> _listSlice,Dictionary<string,range>_listRange,Dictionary<string,range>_listRangeOpen,Dictionary<string,range> _listRangeLeaf, bool obj, double allow)
         {

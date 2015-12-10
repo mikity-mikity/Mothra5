@@ -368,7 +368,7 @@ namespace mikity.ghComponents
             int globalNN = 2;
             foreach (var leaf in listLeaf)
             {
-                leaf.NN = globalNN * (leaf.uDdim) + 1;
+                leaf.NN = globalNN * (leaf.uDdim) -2;
                 double area = 1d / ((double)leaf.NN) / ((double)leaf.NN);
                 //setup tuples
                 //internal tuples
@@ -488,7 +488,7 @@ namespace mikity.ghComponents
             }
             foreach (var branch in listBranch)
             {
-                branch.NN = globalNN*(branch.dDim)+1;
+                branch.NN = globalNN * (branch.dDim) - 2;
                 createNurbsElements(branch);
                 double[,] x;
                 x = new double[branch.N, 3];
