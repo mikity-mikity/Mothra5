@@ -1308,15 +1308,6 @@ namespace mikity.ghComponents
                     {
                         branch.tuples[i].SPK[0, 0] = 0d;
                     }
-                    /*if (branch.branchType == branch.type.open)
-                    {
-                        branch.tuples[i].SPK[0, 0] = 0d;
-                    }*/
-                    /*if (branch.tuples[i].SPK[0, 0] <= 0)
-                    {
-                        branch.tuples[i].SPK[0, 0] = 0.00000000000001d;//E-14
-                    }*/
-
                 }
             }
             foreach (var leaf in _listLeaf)
