@@ -8,8 +8,9 @@ namespace mikity.ghComponents
 {
     public partial class Mothra4 : Grasshopper.Kernel.GH_Component
     {
-        public Rhino.Geometry.Transform zDown_eq = Rhino.Geometry.Transform.Translation(0, 0, 25d);
-        public Rhino.Geometry.Transform zDown = Rhino.Geometry.Transform.Translation(0, 0, 15d);
+        public Rhino.Geometry.Transform zDown_eq = Rhino.Geometry.Transform.Translation(0, 0, 40d);
+        public Rhino.Geometry.Transform zDown = Rhino.Geometry.Transform.Translation(0, 0, 30d);
+        public Rhino.Geometry.Transform zDown2 = Rhino.Geometry.Transform.Translation(0, 0, 15d);
         public Rhino.Geometry.Transform zScale = Rhino.Geometry.Transform.Scale(Rhino.Geometry.Plane.WorldXY, 1, 1, 1d);
         public override void DrawViewportWires(Grasshopper.Kernel.IGH_PreviewArgs args)
         {
@@ -24,7 +25,7 @@ namespace mikity.ghComponents
             //targetSrf
             if (listPnt != null)
             {
-                args.Display.DrawPoints(targetSrf, Rhino.Display.PointStyle.Simple, 1, System.Drawing.Color.White);
+                //args.Display.DrawPoints(targetSrf, Rhino.Display.PointStyle.Simple, 1, System.Drawing.Color.White);
             }
             //eigenvectors
             if (crossCyan != null)
@@ -74,6 +75,7 @@ namespace mikity.ghComponents
                 {
                     var srf = leaf.airySrf.Duplicate() as Rhino.Geometry.NurbsSurface;
                     srf.Transform(zScale);
+                    srf.Transform(zDown2);
                     args.Display.DrawSurface(srf, System.Drawing.Color.Brown, 3);
                 }
             }

@@ -1134,7 +1134,7 @@ namespace mikity.ghComponents
 
                     }
                     //store airy potential
-                    System.Windows.Forms.MessageBox.Show(string.Format("error={0}", xx[numvar - 1]));
+                    //System.Windows.Forms.MessageBox.Show(string.Format("error={0}", xx[numvar - 1]));
                     foreach (var leaf in listLeaf)
                     {
                         double[] x = new double[leaf.nU * leaf.nV];
