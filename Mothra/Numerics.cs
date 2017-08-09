@@ -623,6 +623,14 @@ namespace mikity.ghComponents
             int[] csub = new int[3];// for cones
             int numvar = 0;
             int numcon = 0;
+            //MATLAB INTEGRATION
+            MLApp.MLApp matlab = new MLApp.MLApp();
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\PDIP PACKAGES\\PDIP_Feasibility";
+            System.IO.Directory.SetCurrentDirectory(path);
+            System.Windows.Forms.MessageBox.Show(System.IO.Directory.GetCurrentDirectory());
+            matlab.Execute(@"cd '"+path+"'");
+            var res = matlab.Execute("mothra");
+            System.Windows.Forms.MessageBox.Show(res);
             foreach (var leaf in _listLeaf)
             {
                 leaf.varOffset = numvar;
