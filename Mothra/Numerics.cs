@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ShoNS.Array;
 using Rhino.Geometry;
+using System.IO;
 namespace mikity.ghComponents
 {
     class msgclass : mosek.Stream
@@ -681,6 +682,7 @@ namespace mikity.ghComponents
             mosek.boundkey[] bkx = new mosek.boundkey[numvar];
             double[] blx = new double[numvar];
             double[] bux = new double[numvar];
+            string[] whatsthis = new string[numvar];
             foreach (var leaf in _listLeaf)
             {
                 //z
@@ -689,6 +691,7 @@ namespace mikity.ghComponents
                     bkx[i + leaf.varOffset] = mosek.boundkey.fr;
                     blx[i + leaf.varOffset] = -infinity;
                     bux[i + leaf.varOffset] = infinity;
+                    whatsthis[i + leaf.varOffset] = "Z height@CP (leaf)";
                 }
                 //H11,H22,H12
                 for (int i = 0; i < leaf.r; i++)
@@ -697,12 +700,16 @@ namespace mikity.ghComponents
                     bkx[n + leaf.varOffset] = mosek.boundkey.fr;
                     blx[n + leaf.varOffset] = -infinity;
                     bux[n + leaf.varOffset] = infinity;
+                    whatsthis[n + leaf.varOffset] = "H11/sqrt(2)@EP (leaf)";
+
                     bkx[n + 1 + leaf.varOffset] = mosek.boundkey.fr;
                     blx[n + 1 + leaf.varOffset] = -infinity;
                     bux[n + 1 + leaf.varOffset] = infinity;
+                    whatsthis[n + 1+leaf.varOffset] = "H22/sqrt(2)@EP (leaf)";
                     bkx[n + 2 + leaf.varOffset] = mosek.boundkey.fr;
                     blx[n + 2 + leaf.varOffset] = -infinity;
                     bux[n + 2 + leaf.varOffset] = infinity;
+                    whatsthis[n + 2+leaf.varOffset] = "H12@EP (leaf)";
                 }
                 //later mean curvature will be added here
                 //
@@ -714,18 +721,21 @@ namespace mikity.ghComponents
                         bkx[n + leaf.varOffset] = mosek.boundkey.lo;
                         blx[n + leaf.varOffset] = leaf.range.lb;
                         bux[n + leaf.varOffset] = 0;
+                        whatsthis[n + leaf.varOffset] = "H11+H22@EP (leaf)";
                     }
                     else if (leaf.range.rangeType == range.type.up)
                     {
                         bkx[n + leaf.varOffset] = mosek.boundkey.up;
                         blx[n + leaf.varOffset] = 0;
                         bux[n + leaf.varOffset] = leaf.range.ub;
+                        whatsthis[n + leaf.varOffset] = "H11+H22@EP (leaf)";
                     }
                     else
                     {
                         bkx[n + leaf.varOffset] = mosek.boundkey.ra;
                         blx[n + leaf.varOffset] = leaf.range.lb;
                         bux[n + leaf.varOffset] = leaf.range.ub;
+                        whatsthis[n + leaf.varOffset] = "H11+H22@EP (leaf)";
                     }
 
                 }
@@ -740,6 +750,7 @@ namespace mikity.ghComponents
                         bkx[i + (leaf.nU * leaf.nV) + 4 * leaf.r + leaf.varOffset] = mosek.boundkey.fr;
                         blx[i + (leaf.nU * leaf.nV) + 4 * leaf.r + leaf.varOffset] = 0;
                         bux[i + (leaf.nU * leaf.nV) + 4 * leaf.r + leaf.varOffset] = 0;
+                        whatsthis[i + (leaf.nU * leaf.nV) + 4 * leaf.r + leaf.varOffset] = "Z height@EP (leaf)";
                     }
                     //target_z
                     for (int i = 0; i < leaf.r; i++)
@@ -748,6 +759,7 @@ namespace mikity.ghComponents
                         //reference multiquadric surface
                         blx[i + (leaf.nU * leaf.nV) + 5 * leaf.r + leaf.varOffset] = globalFunc(leaf.tuples[i].x, leaf.tuples[i].y);
                         bux[i + (leaf.nU * leaf.nV) + 5 * leaf.r + leaf.varOffset] = globalFunc(leaf.tuples[i].x, leaf.tuples[i].y);
+                        whatsthis[i + (leaf.nU * leaf.nV) + 5 * leaf.r + leaf.varOffset] = "Z height of target surface avobe the EP (leaf)";
                     }
                     //z-target_z
                     for (int i = 0; i < leaf.r; i++)
@@ -755,6 +767,7 @@ namespace mikity.ghComponents
                         bkx[i + (leaf.nU * leaf.nV) + 6 * leaf.r + leaf.varOffset] = mosek.boundkey.fr;
                         blx[i + (leaf.nU * leaf.nV) + 6 * leaf.r + leaf.varOffset] = 0;
                         bux[i + (leaf.nU * leaf.nV) + 6 * leaf.r + leaf.varOffset] = 0;
+                        whatsthis[i + (leaf.nU * leaf.nV) + 6 * leaf.r + leaf.varOffset] = "height difference@EP (leaf)";
                     }
                 }
             }
@@ -767,6 +780,7 @@ namespace mikity.ghComponents
                         bkx[i + branch.varOffset] = mosek.boundkey.fr;
                         blx[i + branch.varOffset] = 0;
                         bux[i + branch.varOffset] = 0;
+                        whatsthis[i + branch.varOffset] = "Z height @ CP (branch)";
                     }
                     //kink angle parameter
                     for (int i = 0; i < branch.tuples.Count(); i++)
@@ -774,6 +788,7 @@ namespace mikity.ghComponents
                         bkx[branch.N + i + branch.varOffset] = mosek.boundkey.lo;
                         blx[branch.N + i + branch.varOffset] = 0.0;
                         bux[branch.N + i + branch.varOffset] = 0;
+                        whatsthis[branch.N + i + branch.varOffset] = "kink angle @ EV (branch)";
                     }
                 }
                 else if (branch.branchType == branch.type.open)
@@ -783,6 +798,7 @@ namespace mikity.ghComponents
                         bkx[i + branch.varOffset] = mosek.boundkey.fr;
                         blx[i + branch.varOffset] = 0;
                         bux[i + branch.varOffset] = 0;
+                        whatsthis[i + branch.varOffset] = "Z height @ CP (branch)";
                     }
                     //kink angle parameter
                     for (int i = 0; i < branch.tuples.Count(); i++)
@@ -792,22 +808,22 @@ namespace mikity.ghComponents
                             bkx[branch.N + i + branch.varOffset] = mosek.boundkey.lo;
                             blx[branch.N + i + branch.varOffset] = branch.range.lb;
                             bux[branch.N + i + branch.varOffset] = 0;
+                            whatsthis[branch.N + i + branch.varOffset] = "kink angle @ EV (branch)";
                         }
                         else if (branch.range.rangeType == range.type.up)
                         {
                             bkx[branch.N + i + branch.varOffset] = mosek.boundkey.up;
                             blx[branch.N + i + branch.varOffset] = 0;
                             bux[branch.N + i + branch.varOffset] = branch.range.ub;
+                            whatsthis[branch.N + i + branch.varOffset] = "kink angle @ EV (branch)";
                         }
                         else
                         {
                             bkx[branch.N + i + branch.varOffset] = mosek.boundkey.ra;
                             blx[branch.N + i + branch.varOffset] = branch.range.lb;
                             bux[branch.N + i + branch.varOffset] = branch.range.ub;
+                            whatsthis[branch.N + i + branch.varOffset] = "kink angle @ EV (branch)";
                         }
-                        //bkx[branch.N + i + branch.varOffset] = mosek.boundkey.ra;
-                        //blx[branch.N + i + branch.varOffset] = 0;
-                        //bux[branch.N + i + branch.varOffset] = 0;
                     }
                 }
                 else if (branch.branchType == branch.type.kink)
@@ -817,6 +833,7 @@ namespace mikity.ghComponents
                         bkx[i + branch.varOffset] = mosek.boundkey.fr;
                         blx[i + branch.varOffset] = -infinity;
                         bux[i + branch.varOffset] = infinity;
+                        whatsthis[i + branch.varOffset] = "Z height @ CP (branch)";
                     }
                     //kink angle parameter
                     for (int i = 0; i < branch.tuples.Count(); i++)
@@ -826,18 +843,21 @@ namespace mikity.ghComponents
                             bkx[branch.N + i + branch.varOffset] = mosek.boundkey.lo;
                             blx[branch.N + i + branch.varOffset] = branch.range.lb;
                             bux[branch.N + i + branch.varOffset] = 0;
+                            whatsthis[branch.N + i + branch.varOffset] = "kink angle @ EV (branch)";
                         }
                         else if(branch.range.rangeType == range.type.up)
                         {
                             bkx[branch.N + i + branch.varOffset] = mosek.boundkey.up;
                             blx[branch.N + i + branch.varOffset] = 0;
                             bux[branch.N + i + branch.varOffset] = branch.range.ub;
+                            whatsthis[branch.N + i + branch.varOffset] = "kink angle @ EV (branch)";
                         }
                         else
                         {
                             bkx[branch.N + i + branch.varOffset] = mosek.boundkey.ra;
                             blx[branch.N + i + branch.varOffset] = branch.range.lb;
                             bux[branch.N + i + branch.varOffset] = branch.range.ub;
+                            whatsthis[branch.N + i + branch.varOffset] = "kink angle @ EV (branch)";
                         }
                     }
                 }
@@ -848,6 +868,7 @@ namespace mikity.ghComponents
                         bkx[i + branch.varOffset] = mosek.boundkey.fr;
                         blx[i + branch.varOffset] = -infinity;
                         bux[i + branch.varOffset] = infinity;
+                        whatsthis[i + branch.varOffset] = "Z height @ CP (branch)";
                     }
                     //kink angle parameter
                     for (int i = 0; i < branch.tuples.Count(); i++)
@@ -855,6 +876,7 @@ namespace mikity.ghComponents
                         bkx[branch.N + i + branch.varOffset] = mosek.boundkey.fr;
                         blx[branch.N + i + branch.varOffset] = -infinity;
                         bux[branch.N + i + branch.varOffset] = infinity;
+                        whatsthis[branch.N + i + branch.varOffset] = "kink angle @ EV (branch)";
                     }
                 }
             }
@@ -866,24 +888,30 @@ namespace mikity.ghComponents
                     bkx[slice.varOffset] = mosek.boundkey.fx;
                     blx[slice.varOffset] = slice.a;
                     bux[slice.varOffset] = slice.a;
+                    whatsthis[slice.varOffset] = "a in ax+by+d=z (cutting plane)";
                     bkx[slice.varOffset + 1] = mosek.boundkey.fx;
                     blx[slice.varOffset + 1] = slice.b;
                     bux[slice.varOffset + 1] = slice.b;
+                    whatsthis[slice.varOffset +1] = "b in ax+by+d=z (cutting plane)";
                     bkx[slice.varOffset + 2] = mosek.boundkey.fx;
                     blx[slice.varOffset + 2] = slice.d;
                     bux[slice.varOffset + 2] = slice.d;
+                    whatsthis[slice.varOffset + 2] = "d in ax+by+d=z (cutting plane)";
                 }
                 else
                 {
                     bkx[slice.varOffset] = mosek.boundkey.fr;
                     blx[slice.varOffset] = -infinity;
                     bux[slice.varOffset] = infinity;
+                    whatsthis[slice.varOffset] = "a in ax+by+d=z (cutting plane)";
                     bkx[slice.varOffset + 1] = mosek.boundkey.fr;
                     blx[slice.varOffset + 1] = -infinity;
                     bux[slice.varOffset + 1] = infinity;
-                    bkx[slice.varOffset + 2] = mosek.boundkey.fr;
+                    whatsthis[slice.varOffset+1] = "b in ax+by+d=z (cutting plane)";
+                    bkx[slice.varOffset + 2]= mosek.boundkey.fr;
                     blx[slice.varOffset + 2] = -infinity;
                     bux[slice.varOffset + 2] = infinity;
+                    whatsthis[slice.varOffset+2] = "d in ax+by+d=z (cutting plane)";
                 }
             }
             if (obj)
@@ -891,33 +919,41 @@ namespace mikity.ghComponents
                 bkx[numvar - 1] = mosek.boundkey.fx;
                 blx[numvar - 1] = allow;
                 bux[numvar - 1] = allow;
-                
-                //bkx[numvar - 1] = mosek.boundkey.fr;
-                //blx[numvar - 1] = -infinity;
-                //bux[numvar - 1] = infinity;
+                whatsthis[numvar -1] = "total summation of z height difference to the target surface";
+
             }
+            ShoNS.Array.SparseDoubleArray mat = new SparseDoubleArray(numcon, numvar);
 
             // Make mosek environment.
-            using (mosek.Env env = new mosek.Env())
+            using (MemoryStream ms = new MemoryStream())
             {
-                // Create a task object.
-                using (mosek.Task task = new mosek.Task(env, 0, 0))
+                ms.SetLength(0);
+                using (StreamWriter sw = new StreamWriter(ms, System.Text.Encoding.ASCII))
                 {
+
+                    //using (mosek.Env env = new mosek.Env())
+                    //{
+                    // Create a task object.
+                    //using (mosek.Task task = new mosek.Task(env, 0, 0))
+                    //{
                     // Directs the log task stream to the user specified
                     // method msgclass.streamCB
-                    task.set_Stream(mosek.streamtype.log, new msgclass(""));
-
+                    //task.set_Stream(mosek.streamtype.log, new msgclass(""));
+                    sw.WriteLine("Mosek Task");
                     /* Append 'numcon' empty constraints.
                        The constraints will initially have no bounds. */
-                    task.appendcons(numcon);
+                    //task.appendcons(numcon);
+                    sw.WriteLine("Number of Condiions: {0}", numcon);
 
                     /* Append 'numvar' variables.
                        The variables will initially be fixed at zero (x=0). */
-                    task.appendvars(numvar);
+                    //task.appendvars(numvar);
+                    sw.WriteLine("Number of Variable: {0}", numvar);
 
                     for (int j = 0; j < numvar; ++j)
                     {
-                        task.putvarbound(j, bkx[j], blx[j], bux[j]);
+                        //task.putvarbound(j, bkx[j], blx[j], bux[j]);
+                        sw.WriteLine("Variable[{0}], {4}, boundary type={1}, lower bound={2:F10}, upper bound={3:F10}", j,bkx[j].ToString(), blx[j], bux[j], whatsthis[j]);
                     }
                     double root2 = Math.Sqrt(2);
                     foreach (var leaf in listLeaf)
@@ -934,12 +970,18 @@ namespace mikity.ghComponents
                             int N22 = i * 3 + 1;
                             int N12 = i * 3 + 2;
                             int target = i * 3 + (leaf.nU * leaf.nV) + leaf.varOffset;   //variable number
-                            task.putaij(N11+leaf.conOffset, target, -1);
-                            task.putconbound(N11 + leaf.conOffset, mosek.boundkey.fx, 0, 0);
-                            task.putaij(N22 + leaf.conOffset, target + 1, -1);
-                            task.putconbound(N22 + leaf.conOffset, mosek.boundkey.fx, 0, 0);
-                            task.putaij(N12 + leaf.conOffset, target + 2, -1);
-                            task.putconbound(N12 + leaf.conOffset, mosek.boundkey.fx, 0, 0);
+                            //task.putaij(N11+leaf.conOffset, target, -1);
+                            //task.putconbound(N11 + leaf.conOffset, mosek.boundkey.fx, 0, 0);
+                            mat[N11 + leaf.conOffset, target] = -1;
+                            sw.WriteLine("Condition row[{0}],{4}, boundary type={1}, lower bound={2:F10}, upper bound={3:F10}", N11 + leaf.conOffset, mosek.boundkey.fx.ToString(), 0, 0,"definition of H11/sqrt(2)");
+                            //task.putaij(N22 + leaf.conOffset, target + 1, -1);
+                            //task.putconbound(N22 + leaf.conOffset, mosek.boundkey.fx, 0, 0);
+                            mat[N22 + leaf.conOffset, target+1] = -1;
+                            sw.WriteLine("Condition row[{0}],{4}, boundary type={1}, lower bound={2:F10}, upper bound={3:F10}", N22 + leaf.conOffset, mosek.boundkey.fx.ToString(), 0, 0, "definition of H22/sqrt(2)");
+                            //task.putaij(N12 + leaf.conOffset, target + 2, -1);
+                            //task.putconbound(N12 + leaf.conOffset, mosek.boundkey.fx, 0, 0);
+                            mat[N12 + leaf.conOffset, target + 2] = -1;
+                            sw.WriteLine("Condition row[{0}],{4}, boundary type={1}, lower bound={2:F10}, upper bound={3:F10}", N12 + leaf.conOffset, mosek.boundkey.fx.ToString(), 0, 0, "definition of H12");
                             //N11
                             leaf.tuples[i].d2[0, 0].CopyTo(grad, 0);
                             leaf.tuples[i].d0.CopyTo(grad0, 0);
@@ -953,7 +995,9 @@ namespace mikity.ghComponents
                                 }
                                 double val = 0;
                                 val += grad[k];
-                                task.putaij(N11 + leaf.conOffset, leaf.tuples[i].internalIndex[k] + leaf.varOffset, -val / root2);
+                                //task.putaij(N11 + leaf.conOffset, leaf.tuples[i].internalIndex[k] + leaf.varOffset, -val / root2);
+                                mat[N11 + leaf.conOffset, leaf.tuples[i].internalIndex[k] + leaf.varOffset] = -val / root2;
+
                             }
                             //N22
                             leaf.tuples[i].d2[1, 1].CopyTo(grad, 0);
@@ -968,7 +1012,8 @@ namespace mikity.ghComponents
                                 }
                                 double val = 0;
                                 val += grad[k];
-                                task.putaij(N22 + leaf.conOffset, leaf.tuples[i].internalIndex[k] + leaf.varOffset, -val / root2);
+                                //task.putaij(N22 + leaf.conOffset, leaf.tuples[i].internalIndex[k] + leaf.varOffset, -val / root2);
+                                mat[N22 + leaf.conOffset, leaf.tuples[i].internalIndex[k] + leaf.varOffset]= -val / root2;
                             }
                             //N12
                             leaf.tuples[i].d2[0, 1].CopyTo(grad, 0);
@@ -983,7 +1028,8 @@ namespace mikity.ghComponents
                                 }
                                 double val = 0;
                                 val += grad[k];
-                                task.putaij(N12 + leaf.conOffset, leaf.tuples[i].internalIndex[k] + leaf.varOffset, -val);
+                                //task.putaij(N12 + leaf.conOffset, leaf.tuples[i].internalIndex[k] + leaf.varOffset, -val);
+                                mat[N12 + leaf.conOffset, leaf.tuples[i].internalIndex[k] + leaf.varOffset]= -val;
                             }
                         }
                         // mean curvature will be added here
@@ -995,11 +1041,16 @@ namespace mikity.ghComponents
                             int target2 = i + leaf.r*3+(leaf.nU * leaf.nV) + leaf.varOffset;   //variable number
 
                             int NH= leaf.r*3+i; //condition number
-                            task.putaij(NH + leaf.conOffset, target, 1);
-                            task.putaij(NH + leaf.conOffset, target + 1, 1);
-                            task.putaij(NH + leaf.conOffset, target2, -1);
-                            task.putconbound(NH+leaf.conOffset, mosek.boundkey.fx, 0, 0);
-                         
+                            //task.putaij(NH + leaf.conOffset, target, 1);
+                            //task.putaij(NH + leaf.conOffset, target + 1, 1);
+                            //task.putaij(NH + leaf.conOffset, target2, -1);
+
+                            mat[NH + leaf.conOffset, target] = 1;
+                            mat[NH + leaf.conOffset, target + 1] = 1;
+                            mat[NH + leaf.conOffset, target2] = -1;
+                            //task.putconbound(NH +leaf.conOffset, mosek.boundkey.fx, 0, 0);
+                            sw.WriteLine("Condition row[{0}],{4}, boundary type={1}, lower bound={2:F10}, upper bound={3:F10}", NH + leaf.conOffset, mosek.boundkey.fx.ToString(), 0, 0,"H11+H22");
+
                         }
 
                         //if (leaf.leafType == leaf.type.convex)
@@ -1012,15 +1063,13 @@ namespace mikity.ghComponents
                             csub[0] = N11 + leaf.varOffset;
                             csub[1] = N22 + leaf.varOffset;
                             csub[2] = N12 + leaf.varOffset;
+                            /*
                             task.appendcone(mosek.conetype.rquad,
                                             0.0, // For future use only, can be set to 0.0 
                                             csub);
-                            /*if (obj2)
-                            {
-                                task.putcj(N11, leaf.tuples[i].Gij[0, 0]);
-                                task.putcj(N22, leaf.tuples[i].Gij[1, 1]);
-                                task.putcj(N12, 2*leaf.tuples[i].Gij[0, 1]);
-                            }*/
+                                            */
+                            sw.WriteLine("Rotate Cone: 2*x[{0}]*x[{1}]>x[{2}]*x[{3}],x[{0}]>0,x[{1}]>0", N11 + leaf.varOffset, N22 + leaf.varOffset,N12 + leaf.varOffset, N12 + leaf.varOffset);
+ 
                         }
                         if (obj)
                         {
@@ -1030,17 +1079,25 @@ namespace mikity.ghComponents
                                 leaf.tuples[i].d0.CopyTo(grad00, 0);
                                 for (int k = 0; k < leaf.tuples[i].nNode; k++)
                                 {
-                                    task.putaij(leaf.conOffset + leaf.r * 4 + i, leaf.varOffset + leaf.tuples[i].internalIndex[k], grad00[k]);
+                                    //task.putaij(leaf.conOffset + leaf.r * 4 + i, leaf.varOffset + leaf.tuples[i].internalIndex[k], grad00[k]);
+                                    mat[leaf.conOffset + leaf.r * 4 + i, leaf.varOffset + leaf.tuples[i].internalIndex[k]] = grad00[k];
                                 }
-                                task.putaij(leaf.conOffset + leaf.r * 4 + i, leaf.varOffset + leaf.nU*leaf.nV+leaf.r*4+i,-1);
-                                task.putconbound(leaf.conOffset + leaf.r * 4 + i, mosek.boundkey.fx, 0, 0);
+                                //task.putaij(leaf.conOffset + leaf.r * 4 + i, leaf.varOffset + leaf.nU*leaf.nV+leaf.r*4+i,-1);
+                                mat[leaf.conOffset + leaf.r * 4 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 4 + i] = -1;
+                                //task.putconbound(leaf.conOffset + leaf.r * 4 + i, mosek.boundkey.fx, 0, 0);
+                                sw.WriteLine("Condition row[{0}],{4}, boundary type={1}, lower bound={2:F10}, upper bound={3:F10}", leaf.conOffset + leaf.r * 4 + i, mosek.boundkey.fx.ToString(), 0, 0,"Z height @EV");
                             }
                             for (int i = 0; i < leaf.tuples.Count(); i++)
                             {
-                                task.putaij(leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 4 + i, 1);
-                                task.putaij(leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 5 + i, -1);
-                                task.putaij(leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 6 + i, -1);
-                                task.putconbound(leaf.conOffset + leaf.r * 5 + i, mosek.boundkey.fx, 0, 0);
+                                //task.putaij(leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 4 + i, 1);
+                                //task.putaij(leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 5 + i, -1);
+                                //task.putaij(leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 6 + i, -1);
+                                mat[leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 4 + i]= 1;
+                                mat[leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 5 + i]= -1;
+                                mat[leaf.conOffset + leaf.r * 5 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 6 + i]= -1;
+
+                                //task.putconbound(leaf.conOffset + leaf.r * 5 + i, mosek.boundkey.fx, 0, 0);
+                                sw.WriteLine("Condition row[{0}], {4},boundary type={1}, lower bound={2:F10}, upper bound={3:F10}", leaf.conOffset + leaf.r * 5 + i, mosek.boundkey.fx.ToString(), 0, 0,"Z height differnce to the target surface @ EV");
                             }
                         }
                     }
@@ -1049,15 +1106,28 @@ namespace mikity.ghComponents
                     {
                         List<int> dsub=new List<int>();
                         dsub.Add(numvar-1);
+
+                        sw.Write("Quad Cone: x[{0}]*x[{0}]>", dsub[0], dsub[0]);
                         foreach (var leaf in _listLeaf)
                         {
                             for (int i = 0; i < leaf.r; i++)
                             {
                                 dsub.Add(leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 6 + i);
+                                sw.Write("x[{0}]*x[{0}]", leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 6 + i, leaf.varOffset + leaf.nU * leaf.nV + leaf.r * 6 + i);
+                                if (i == leaf.r - 1 && leaf == _listLeaf[_listLeaf.Count - 1])
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    sw.Write("+");
+                                }
                             }
                         }
-                        task.appendcone(mosek.conetype.quad, 0.0, dsub.ToArray());
+                        sw.WriteLine(">0");
+                        //task.appendcone(mosek.conetype.quad, 0.0, dsub.ToArray());
                     }
+                    /*
                     foreach (var branch in _listBranch)
                     {
                         if (branch.branchType == branch.type.kink)
@@ -1065,13 +1135,6 @@ namespace mikity.ghComponents
                             tieBranchD1(branch, branch.left, task, 2, 0);
                             tieBranchD1(branch, branch.right, task, 2, 1);
                             defineKinkAngle2(branch,branch.left,branch.right,task, branch.conOffset + branch.N*2, branch.varOffset + branch.N);
-                            /*if (branch.obj)
-                            {
-                                for (int i = 0; i < branch.tuples.Count(); i++)
-                                {
-                                    task.putcj(branch.N + i + branch.varOffset, 1);
-                                }
-                            }*/
                         }
                         else if (branch.branchType == branch.type.reinforce || branch.branchType == branch.type.open)
                         {
@@ -1098,27 +1161,34 @@ namespace mikity.ghComponents
                             defineKinkAngle(branch,branch.target, task, branch.conOffset + branch.N, branch.varOffset + branch.N);
                         }
                     }
-                    //task.putcj(numvar - 1, 1);
-                    task.putintparam(mosek.iparam.intpnt_max_iterations, 200000000);//20000000
-                    task.putintparam(mosek.iparam.intpnt_solve_form, mosek.solveform.dual);
-                    task.putobjsense(mosek.objsense.minimize);
-                    //task.writedata("c:/out/mosek_task_dump.opf");
+                    */
+                    sw.WriteLine("Condition Matrix A");
+                    foreach(var M in mat.Elements)
+                    {
+                        sw.WriteLine("A[{0},{1}]={2:F10}", M.Row, M.Col, M.Value);
+                    }
+                    /*
+                                        task.putintparam(mosek.iparam.intpnt_max_iterations, 200000000);//20000000
+                                        task.putintparam(mosek.iparam.intpnt_solve_form, mosek.solveform.dual);
+                                        task.putobjsense(mosek.objsense.minimize);
+                                        //task.writedata("c:/out/mosek_task_dump.opf");
 
 
-                    task.optimize();
-                    // Print a summary containing information
-                    //   about the solution for debugging purposes
-                    task.solutionsummary(mosek.streamtype.msg);
+                                        task.optimize();
+                                        // Print a summary containing information
+                                        //   about the solution for debugging purposes
+                                        task.solutionsummary(mosek.streamtype.msg);
 
-                    mosek.solsta solsta;
-                    /* Get status information about the solution */
-                    task.getsolsta(mosek.soltype.itr, out solsta);
+                                        mosek.solsta solsta;
+                                        //Get status information about the solution 
+                                        task.getsolsta(mosek.soltype.itr, out solsta);
 
-                    double[] xx = new double[numvar];
+                                        double[] xx = new double[numvar];
 
-                    task.getxx(mosek.soltype.itr, // Basic solution.     
-                                    xx);
-
+                                        task.getxx(mosek.soltype.itr, // Basic solution.     
+                                                        xx);
+                                        */
+                    /*
                     switch (solsta)
                     {
                         case mosek.solsta.optimal:
@@ -1141,8 +1211,10 @@ namespace mikity.ghComponents
                             break;
 
                     }
+                    */
                     //store airy potential
                     //System.Windows.Forms.MessageBox.Show(string.Format("error={0}", xx[numvar - 1]));
+                    /*
                     foreach (var leaf in listLeaf)
                     {
                         double[] x = new double[leaf.nU * leaf.nV];
@@ -1300,8 +1372,27 @@ namespace mikity.ghComponents
                             }
                         }
                     }
+                    */
+                    sw.Flush();
+                }
+                string myStr = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+                System.Windows.Forms.SaveFileDialog savefile = new System.Windows.Forms.SaveFileDialog();
+                // set a default file name
+                savefile.FileName = "problem.dat";
+                // set filters - this can be done in properties as well
+                savefile.Filter = "DAT files (*.dat)|*.dat|All files (*.*)|*.*";
+
+                if (savefile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    using (StreamWriter sw2 = new StreamWriter(savefile.FileName))
+                    {
+                        sw2.Write(myStr);
+                        sw2.Flush();
+                    }
                 }
             }
+
+
         }
         void hodgeStar(List<leaf> _listLeaf, List<branch> _listBranch, Func<double, double> coeff,double sScale)
         {
